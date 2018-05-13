@@ -32,8 +32,8 @@ fn main() {
         .map(|row| {
             let mut items: HashMap<String, JsonValue> = HashMap::new();
 
-            row.iter().for_each(|(key, value)| {
-                let (key, value) = data::dimensional_converter(key.clone(), value.clone(), &ds);
+            row.into_iter().for_each(|(key, value)| {
+                let (key, value) = data::dimensional_converter(key, value, &ds);
                 let prepared_value = data::prepare_upsert(items.entry(key.clone()), value);
                 items.insert(key, prepared_value);
             });
