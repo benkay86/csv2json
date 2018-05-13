@@ -1,24 +1,8 @@
-use std::collections::HashMap;
-use std::collections::hash_map::Entry;
 use serde_json::Value as JsonValue;
 use serde_json::map::Entry as JsonEntry;
+use std::collections::hash_map::Entry;
 
-pub fn row_to_object(
-    headers: &Vec<String>,
-    row: Vec<String>,
-    ds: Option<&str>,
-) -> HashMap<String, JsonValue> {
-    let mut items = HashMap::new();
-    let data_iter = headers.iter().cloned().zip(row.iter().cloned());
-    for (key, value) in data_iter {
-        let (key, value) = dimensional_converter(key, value, &ds);
-        let prepared_value = prepare_upsert(items.entry(key.clone()), value);
-        items.insert(key, prepared_value);
-    }
-    items
-}
-
-fn dimensional_converter(key: String, value: String, ds: &Option<&str>) -> (String, JsonValue) {
+pub fn dimensional_converter(key: String, value: String, ds: &Option<&str>) -> (String, JsonValue) {
     if let &Some(separator) = ds {
         if key.contains(separator) {
             let mut parts = key.split(separator);
@@ -31,7 +15,7 @@ fn dimensional_converter(key: String, value: String, ds: &Option<&str>) -> (Stri
     (key, json!(value))
 }
 
-fn prepare_upsert(entry: Entry<String, JsonValue>, data: JsonValue) -> JsonValue {
+pub fn prepare_upsert(entry: Entry<String, JsonValue>, data: JsonValue) -> JsonValue {
     match entry {
         Entry::Vacant(_) => data,
         Entry::Occupied(e) => {
@@ -154,6 +138,13 @@ mod tests {
             let v1 = json!({"k1":"v1"});
             let v2 = json!({"k2":"v2"});
             assert_eq!(super::merge_values(v1, v2), json!({"k1":"v1", "k2":"v2"}));
+        }
+
+        #[test]
+        fn it_merges_values_inside_objects() {
+            let v1 = json!({"k1":"v1"});
+            let v2 = json!({"k1":"v2"});
+            assert_eq!(super::merge_values(v1, v2), json!({"k1":["v1","v2"]}));
         }
     }
 }
