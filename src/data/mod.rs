@@ -42,7 +42,7 @@ fn merge_values(v1: JsonValue, v2: JsonValue) -> JsonValue {
                 });
                 return json!(o1);
             }
-            panic!("This isn't possible");
+            unreachable!();
         }
     }
 
@@ -53,7 +53,7 @@ fn merge_values(v1: JsonValue, v2: JsonValue) -> JsonValue {
                 a1.append(&mut a2);
                 return json!(a1);
             }
-            panic!("This isn't possible");
+            unreachable!();
         }
     }
 
