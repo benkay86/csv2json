@@ -25,12 +25,9 @@ fn main() {
     let data: Vec<HashMap<String, JsonValue>> = csv_reader
         .deserialize()
         .filter(|result| result.is_ok())
-        .map(|result| {
-            let row: HashMap<String, String> = result.unwrap();
-            row
-        })
-        .map(|row| {
-            let mut items: HashMap<String, JsonValue> = HashMap::new();
+        .map(|result| -> HashMap<String, String> { result.unwrap() })
+        .map(|row| -> HashMap<String, JsonValue> {
+            let mut items = HashMap::new();
 
             row.into_iter().for_each(|(key, value)| {
                 let (key, value) = data::dimensional_converter(key, value, &ds);
