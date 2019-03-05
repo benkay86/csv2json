@@ -1,14 +1,14 @@
-use serde_json::Value as JsonValue;
 use serde_json::map::Entry as JsonEntry;
+use serde_json::Value as JsonValue;
 use std::collections::hash_map::Entry;
 
-pub fn dimensional_converter(key: String, value: String, ds: &Option<&str>) -> (String, JsonValue) {
-    if let &Some(separator) = ds {
+pub fn dimensional_converter(key: String, value: String, ds: Option<&str>) -> (String, JsonValue) {
+    if let Some(separator) = ds {
         if key.contains(separator) {
             let mut parts = key.split(separator);
             let this_key = parts.next().unwrap().to_owned();
             let key_chain = parts.collect::<Vec<&str>>().join(".").to_owned();
-            let (next_key, data) = dimensional_converter(key_chain, value, &Some(separator));
+            let (next_key, data) = dimensional_converter(key_chain, value, Some(separator));
             return (this_key, json!({ next_key: data }));
         }
     }
@@ -81,7 +81,7 @@ mod tests {
             let key = String::from("first.second.third");
             let value = String::from("value");
             assert_eq!(
-                super::dimensional_converter(key, value, &None),
+                super::dimensional_converter(key, value, None),
                 (String::from("first.second.third"), json!("value"))
             )
         }
@@ -91,7 +91,7 @@ mod tests {
             let key = String::from("first.second.third");
             let value = String::from("value");
             assert_eq!(
-                super::dimensional_converter(key, value, &Some(".")),
+                super::dimensional_converter(key, value, Some(".")),
                 (String::from("first"), json!({"second":{"third":"value"}}))
             )
         }
@@ -101,7 +101,7 @@ mod tests {
             let key = String::from("first.second.third");
             let value = String::from("value");
             assert_eq!(
-                super::dimensional_converter(key, value, &Some("-")),
+                super::dimensional_converter(key, value, Some("-")),
                 (String::from("first.second.third"), json!("value"))
             )
         }
