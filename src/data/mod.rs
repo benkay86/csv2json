@@ -1,12 +1,10 @@
-use serde_json::map::Entry as JsonEntry;
-use serde_json::Map as JsonMap;
-use serde_json::Value as JsonValue;
+use serde_json::{map::Entry, Map, Value};
 
-pub fn group_numeric_arrays(value: JsonValue) -> JsonValue {
+pub fn group_numeric_arrays(value: Value) -> Value {
     // If there are no non-numeric keys we can turn this group into an array.
-    if let JsonValue::Object(object) = value {
+    if let Value::Object(object) = value {
         // Recurse over each element in the object
-        let object: JsonMap<String, JsonValue> = object
+        let object: Map<String, Value> = object
             .into_iter()
             .map(|(key, value)| {
                 let replacement = group_numeric_arrays(value);
@@ -22,7 +20,7 @@ pub fn group_numeric_arrays(value: JsonValue) -> JsonValue {
             .collect();
 
         if remaining_keys.is_empty() {
-            let values: Vec<JsonValue> = object.values().map(|i| i.to_owned()).collect();
+            let values: Vec<Value> = object.values().map(|i| i.to_owned()).collect();
             json!(values)
         } else {
             json!(object)
@@ -32,7 +30,7 @@ pub fn group_numeric_arrays(value: JsonValue) -> JsonValue {
     }
 }
 
-pub fn dimensional_converter(key: String, value: String, ds: Option<&str>) -> (String, JsonValue) {
+pub fn dimensional_converter(key: String, value: String, ds: Option<&str>) -> (String, Value) {
     if let Some(separator) = ds {
         if key.contains(separator) {
             let mut parts = key.split(separator);
@@ -45,25 +43,25 @@ pub fn dimensional_converter(key: String, value: String, ds: Option<&str>) -> (S
     (key, json!(value))
 }
 
-pub fn prepare_upsert(entry: JsonEntry, data: JsonValue) -> JsonValue {
+pub fn prepare_upsert(entry: Entry, data: Value) -> Value {
     match entry {
-        JsonEntry::Vacant(_) => data,
-        JsonEntry::Occupied(e) => {
+        Entry::Vacant(_) => data,
+        Entry::Occupied(e) => {
             let old_value = e.remove();
             merge_values(old_value, data)
         }
     }
 }
 
-fn merge_values(v1: JsonValue, v2: JsonValue) -> JsonValue {
+fn merge_values(v1: Value, v2: Value) -> Value {
     // If both values are objects combine on keys
     if v1.is_object() && v2.is_object() {
-        if let JsonValue::Object(mut o1) = v1 {
-            if let JsonValue::Object(mut o2) = v2 {
+        if let Value::Object(mut o1) = v1 {
+            if let Value::Object(mut o2) = v2 {
                 o2.into_iter().for_each(|(key2, value2)| {
                     let replacement = match o1.entry(key2.to_owned()) {
-                        JsonEntry::Vacant(_) => value2,
-                        JsonEntry::Occupied(e) => {
+                        Entry::Vacant(_) => value2,
+                        Entry::Occupied(e) => {
                             let value1 = e.remove();
                             merge_values(value1, value2)
                         }
@@ -78,8 +76,8 @@ fn merge_values(v1: JsonValue, v2: JsonValue) -> JsonValue {
 
     // If both values are arrays, add the other to it.
     if v1.is_array() && v2.is_array() {
-        if let JsonValue::Array(mut a1) = v1 {
-            if let JsonValue::Array(mut a2) = v2 {
+        if let Value::Array(mut a1) = v1 {
+            if let Value::Array(mut a2) = v2 {
                 a1.append(&mut a2);
                 return json!(a1);
             }
@@ -88,11 +86,11 @@ fn merge_values(v1: JsonValue, v2: JsonValue) -> JsonValue {
     }
 
     // If either is an array add the other to it.
-    if let JsonValue::Array(mut a1) = v1 {
+    if let Value::Array(mut a1) = v1 {
         a1.push(v2);
         return json!(a1);
     }
-    if let JsonValue::Array(mut a2) = v2 {
+    if let Value::Array(mut a2) = v2 {
         a2.push(v1);
         return json!(a2);
     }

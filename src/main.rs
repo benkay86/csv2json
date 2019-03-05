@@ -7,8 +7,8 @@ extern crate serde_json;
 mod cli;
 mod data;
 
-use serde_json::Value;
 use serde_json::Map;
+use serde_json::Value;
 use std::collections::HashMap;
 use std::fs::File;
 
