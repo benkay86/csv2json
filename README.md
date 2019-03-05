@@ -52,3 +52,54 @@ Setting the separator `-d .`:
   }
 ]
 ```
+
+You can use `--numeric-arrays` (or `-n`) with `-d` to break items into arrays
+
+```csv
+name,pets.1,pets.2
+Daniel Mason,Yuki,Tinky
+```
+
+Without using numeric keys:
+```json
+[
+  {
+    "name": "Daniel Mason",
+    "pets.1": "Yuki",
+    "pets.2": "Tinky"
+  }
+]
+```
+
+With numeric keys (`-d . -n`):
+```json
+[
+  {
+    "name": "Daniel Mason",
+    "pets": [
+        "Yuki",
+        "Tinky"
+    ]
+  }
+]
+```
+
+**Note:** The number of the key is irrelevant, it only need be a number for example:
+
+```csv
+name,pets.45,pets.22
+Daniel Mason,,Tinky
+```
+
+Will produce:
+
+```json
+[
+  {
+    "name": "Daniel Mason",
+    "pets": [
+        "Tinky"
+    ]
+  }
+]
+```
