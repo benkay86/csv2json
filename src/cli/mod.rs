@@ -1,3 +1,4 @@
+use clap::{app_from_crate, crate_authors, crate_description, crate_name, crate_version};
 use clap::{App, Arg, ArgMatches};
 
 pub fn get_matches<'a>() -> ArgMatches<'a> {
@@ -5,9 +6,7 @@ pub fn get_matches<'a>() -> ArgMatches<'a> {
 }
 
 fn configure_app<'a, 'b>() -> App<'a, 'b> {
-    App::new(env!("CARGO_PKG_NAME"))
-        .version(env!("CARGO_PKG_VERSION"))
-        .author(env!("CARGO_PKG_AUTHORS"))
+    app_from_crate!("\n")
         .arg(
             Arg::with_name("in")
                 .short("i")
