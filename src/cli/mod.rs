@@ -25,6 +25,14 @@ fn configure_app<'a, 'b>() -> App<'a, 'b> {
                 .help("A separator to break header names allowing you to create deeper objects")
                 .takes_value(true),
         )
+        .arg(
+            Arg::with_name("numeric-arrays")
+                .short("n")
+                .long("numeric-arrays")
+                .value_name("numeric-arrays")
+                .help("Indicates the csv contains arrays represented by numeric keys. Use with -d")
+                .takes_value(false),
+        )
 }
 
 #[cfg(test)]
