@@ -16,7 +16,7 @@ fn main() {
     let cli_matches = cli::get_matches();
 
     let csv_file = cli_matches
-        .value_of("in")
+        .value_of(cli::IN)
         .expect("You must specify an input csv with --in");
     let ds = cli_matches.value_of(cli::DIMENSIONAL_SEPARATOR);
     let na = cli_matches.is_present(cli::NUMERIC_ARRAYS);
@@ -25,7 +25,7 @@ fn main() {
     let file = File::open(csv_file).expect("Could not read csv file");
     let mut csv_reader = csv::Reader::from_reader(file);
 
-    let data: Vec<Value> = csv_reader
+    let mut items: Value = csv_reader
         .deserialize()
         .filter(|result| result.is_ok())
         .map(|result| -> HashMap<String, String> { result.unwrap() })
@@ -38,23 +38,19 @@ fn main() {
                 items.insert(key, prepared_value);
             });
 
-            let mut items = json!(items);
-
-            if na {
-                items = data::group_numeric_arrays(items);
-            }
-
-            if res {
-                data::remove_empty_strings(&mut items);
-            }
-
-            if reo {
-                data::remove_empty_objects(&mut items);
-            }
-
-            items
+            json!(items)
         })
         .collect();
 
-    println!("{}", serde_json::to_string_pretty(&data).unwrap());
+    if na {
+        items = data::group_numeric_arrays(items);
+    }
+    if res {
+        items = data::remove_empty_strings(items);
+    }
+    if reo {
+        items = data::remove_empty_objects(items);
+    }
+
+    println!("{}", serde_json::to_string_pretty(&items).unwrap());
 }

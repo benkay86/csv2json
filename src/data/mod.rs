@@ -1,33 +1,40 @@
 use serde_json::{map::Entry, Map, Value};
 
 pub fn group_numeric_arrays(value: Value) -> Value {
-    // If there are no non-numeric keys we can turn this group into an array.
-    if let Value::Object(object) = value {
-        // Recurse over each element in the object
-        let object: Map<String, Value> = object
-            .into_iter()
-            .map(|(key, value)| {
-                let replacement = group_numeric_arrays(value);
-                (key, replacement)
-            })
-            .collect();
-
-        // Test if this object should be an array
-        let remaining_keys: Vec<bool> = object
-            .keys()
-            .filter(|k| k.parse::<u64>().is_err()) // Find anything the doesn't parse to u64
-            .map(|_| true)
-            .collect();
-
-        if remaining_keys.is_empty() {
-            let values: Vec<Value> = object.values().map(|i| i.to_owned()).collect();
-            json!(values)
-        } else {
-            json!(object)
-        }
-    } else {
-        value
+    match value {
+        Value::Object(object) => group_numeric_arrays_in_object(object),
+        Value::Array(arr) => group_numeric_arrays_in_array(arr),
+        _ => value
     }
+}
+
+fn group_numeric_arrays_in_object(object: Map<String, Value>) -> Value {
+    // Recurse over each element in the object
+    let object: Map<String, Value> = object
+        .into_iter()
+        .map(|(key, value)| {
+            let replacement = group_numeric_arrays(value);
+            (key, replacement)
+        })
+        .collect();
+
+    // Test if this object should be an array
+    let remaining_keys: Vec<bool> = object
+        .keys()
+        .filter(|k| k.parse::<u64>().is_err()) // Find anything the doesn't parse to u64
+        .map(|_| true)
+        .collect();
+
+    if remaining_keys.is_empty() {
+        let values: Vec<Value> = object.values().map(|i| i.to_owned()).collect();
+        json!(values)
+    } else {
+        json!(object)
+    }
+}
+
+fn group_numeric_arrays_in_array(arr: Vec<Value>) -> Value {
+    arr.into_iter().map(group_numeric_arrays).collect()
 }
 
 pub fn dimensional_converter(key: String, value: String, ds: Option<&str>) -> (String, Value) {
@@ -53,58 +60,54 @@ pub fn prepare_upsert(entry: Entry, data: Value) -> Value {
     }
 }
 
-pub fn remove_empty_objects(value: &mut Value) {
+pub fn remove_empty_objects(value: Value) -> Value {
     match value {
         Value::Object(object) => remove_empty_objects_from_object(object),
         Value::Array(arr) => remove_empty_objects_from_array(arr),
-        _ => {}
+        _ => value
     }
 }
 
-fn remove_empty_objects_from_object(object: &mut Map<String, Value>) {
-    let mut keys_to_remove: Vec<String> = vec![];
-    object.iter_mut().for_each(|(key, mut value)| {
-        if value.is_object() && value.as_object().unwrap().is_empty() {
-            keys_to_remove.push(key.to_owned());
-        } else {
-            remove_empty_objects(&mut value)
-        }
-    });
-    keys_to_remove.iter().for_each(|key| {
-        object.remove(key);
-    })
+fn remove_empty_objects_from_object(object: Map<String, Value>) -> Value {
+    let new_object: Map<String, Value> = object
+        .into_iter().map(|(key, value)| (key, remove_empty_objects(value)))
+        .filter(|(_key, value)| !(value.is_object() && value.as_object().unwrap().is_empty()))
+        .collect();
+    json!(new_object)
 }
 
-fn remove_empty_objects_from_array(arr: &mut Vec<Value>) {
-    arr.retain(|value| !(value.is_object() && value.as_object().unwrap().is_empty()));
-    arr.iter_mut().for_each(|value| remove_empty_objects(value));
+fn remove_empty_objects_from_array(arr: Vec<Value>) -> Value {
+    let new_arr: Vec<Value> = arr
+        .into_iter()
+        .filter(|value| !(value.is_object() && value.as_object().unwrap().is_empty()))
+        .map(remove_empty_objects)
+        .collect();
+    json!(new_arr)
 }
 
-pub fn remove_empty_strings(value: &mut Value) {
+pub fn remove_empty_strings(value: Value) -> Value {
     match value {
         Value::Object(object) => remove_empty_strings_from_object(object),
         Value::Array(arr) => remove_empty_strings_from_array(arr),
-        _ => {}
+        _ => value
     }
 }
 
-fn remove_empty_strings_from_object(object: &mut Map<String, Value>) {
-    let mut keys_to_remove: Vec<String> = vec![];
-    object.iter_mut().for_each(|(key, mut value)| {
-        if value.is_string() && value.as_str().unwrap().is_empty() {
-            keys_to_remove.push(key.to_owned());
-        } else {
-            remove_empty_strings(&mut value)
-        }
-    });
-    keys_to_remove.iter().for_each(|key| {
-        object.remove(key);
-    })
+fn remove_empty_strings_from_object(object: Map<String, Value>) -> Value {
+    let new_object: Map<String, Value> = object
+        .into_iter().map(|(key, value)| (key, remove_empty_strings(value)))
+        .filter(|(_key, value)| !(value.is_string() && value.as_str().unwrap().is_empty()))
+        .collect();
+    json!(new_object)
 }
 
-fn remove_empty_strings_from_array(arr: &mut Vec<Value>) {
-    arr.retain(|value| !(value.is_string() && value.as_str().unwrap().is_empty()));
-    arr.iter_mut().for_each(|value| remove_empty_strings(value))
+fn remove_empty_strings_from_array(arr: Vec<Value>) -> Value {
+    let new_arr: Vec<Value> = arr
+        .into_iter()
+        .filter(|value| !(value.is_string() && value.as_str().unwrap().is_empty()))
+        .map(remove_empty_strings)
+        .collect();
+    json!(new_arr)
 }
 
 fn merge_values(v1: Value, v2: Value) -> Value {

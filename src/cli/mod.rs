@@ -5,6 +5,7 @@ pub const DIMENSIONAL_SEPARATOR: &str = "dimensional-separator";
 pub const NUMERIC_ARRAYS: &str = "numeric-arrays";
 pub const REMOVE_EMPTY_STRINGS: &str = "remove-empty-strings";
 pub const REMOVE_EMPTY_OBJECTS: &str = "remove-empty-objects";
+pub const IN: &str = "in";
 
 pub fn get_matches<'a>() -> ArgMatches<'a> {
     configure_app().get_matches()
@@ -13,10 +14,10 @@ pub fn get_matches<'a>() -> ArgMatches<'a> {
 fn configure_app<'a, 'b>() -> App<'a, 'b> {
     app_from_crate!("\n")
         .arg(
-            Arg::with_name("in")
+            Arg::with_name(IN)
                 .short("i")
-                .long("in")
-                .value_name("in")
+                .long(IN)
+                .value_name(IN)
                 .help("The csv file to read")
                 .takes_value(true)
                 .required(true),
