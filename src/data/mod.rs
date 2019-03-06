@@ -60,58 +60,54 @@ pub fn prepare_upsert(entry: Entry, data: Value) -> Value {
     }
 }
 
-pub fn remove_empty_objects(value: &mut Value) {
+pub fn remove_empty_objects(value: Value) -> Value {
     match value {
         Value::Object(object) => remove_empty_objects_from_object(object),
         Value::Array(arr) => remove_empty_objects_from_array(arr),
-        _ => {}
+        _ => value
     }
 }
 
-fn remove_empty_objects_from_object(object: &mut Map<String, Value>) {
-    let mut keys_to_remove: Vec<String> = vec![];
-    object.iter_mut().for_each(|(key, mut value)| {
-        if value.is_object() && value.as_object().unwrap().is_empty() {
-            keys_to_remove.push(key.to_owned());
-        } else {
-            remove_empty_objects(&mut value)
-        }
-    });
-    keys_to_remove.iter().for_each(|key| {
-        object.remove(key);
-    })
+fn remove_empty_objects_from_object(object: Map<String, Value>) -> Value {
+    let new_object: Map<String, Value> = object
+        .into_iter().map(|(key, value)| (key, remove_empty_objects(value)))
+        .filter(|(_key, value)| !(value.is_object() && value.as_object().unwrap().is_empty()))
+        .collect();
+    json!(new_object)
 }
 
-fn remove_empty_objects_from_array(arr: &mut Vec<Value>) {
-    arr.retain(|value| !(value.is_object() && value.as_object().unwrap().is_empty()));
-    arr.iter_mut().for_each(|value| remove_empty_objects(value));
+fn remove_empty_objects_from_array(arr: Vec<Value>) -> Value {
+    let new_arr: Vec<Value> = arr
+        .into_iter()
+        .filter(|value| !(value.is_object() && value.as_object().unwrap().is_empty()))
+        .map(remove_empty_objects)
+        .collect();
+    json!(new_arr)
 }
 
-pub fn remove_empty_strings(value: &mut Value) {
+pub fn remove_empty_strings(value: Value) -> Value {
     match value {
         Value::Object(object) => remove_empty_strings_from_object(object),
         Value::Array(arr) => remove_empty_strings_from_array(arr),
-        _ => {}
+        _ => value
     }
 }
 
-fn remove_empty_strings_from_object(object: &mut Map<String, Value>) {
-    let mut keys_to_remove: Vec<String> = vec![];
-    object.iter_mut().for_each(|(key, mut value)| {
-        if value.is_string() && value.as_str().unwrap().is_empty() {
-            keys_to_remove.push(key.to_owned());
-        } else {
-            remove_empty_strings(&mut value)
-        }
-    });
-    keys_to_remove.iter().for_each(|key| {
-        object.remove(key);
-    })
+fn remove_empty_strings_from_object(object: Map<String, Value>) -> Value {
+    let new_object: Map<String, Value> = object
+        .into_iter().map(|(key, value)| (key, remove_empty_strings(value)))
+        .filter(|(_key, value)| !(value.is_string() && value.as_str().unwrap().is_empty()))
+        .collect();
+    json!(new_object)
 }
 
-fn remove_empty_strings_from_array(arr: &mut Vec<Value>) {
-    arr.retain(|value| !(value.is_string() && value.as_str().unwrap().is_empty()));
-    arr.iter_mut().for_each(|value| remove_empty_strings(value))
+fn remove_empty_strings_from_array(arr: Vec<Value>) -> Value {
+    let new_arr: Vec<Value> = arr
+        .into_iter()
+        .filter(|value| !(value.is_string() && value.as_str().unwrap().is_empty()))
+        .map(remove_empty_strings)
+        .collect();
+    json!(new_arr)
 }
 
 fn merge_values(v1: Value, v2: Value) -> Value {

@@ -46,10 +46,10 @@ fn main() {
         items = data::group_numeric_arrays(items);
     }
     if res {
-        data::remove_empty_strings(&mut items);
+        items = data::remove_empty_strings(items);
     }
     if reo {
-        data::remove_empty_objects(&mut items);
+        items = data::remove_empty_objects(items);
     }
 
     println!("{}", serde_json::to_string_pretty(&items).unwrap());
