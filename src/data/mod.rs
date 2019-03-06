@@ -77,6 +77,7 @@ fn remove_empty_strings_from_object(object: &mut Map<String, Value>) {
 
 fn remove_empty_strings_from_array(arr: &mut Vec<Value>) {
     arr.retain(|value| !(value.is_string() && value.as_str().unwrap().is_empty()));
+    arr.iter_mut().for_each(|value| remove_empty_strings(value))
 }
 
 fn merge_values(v1: Value, v2: Value) -> Value {
