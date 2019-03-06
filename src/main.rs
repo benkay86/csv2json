@@ -16,7 +16,7 @@ fn main() {
     let cli_matches = cli::get_matches();
 
     let csv_file = cli_matches
-        .value_of("in")
+        .value_of(cli::IN)
         .expect("You must specify an input csv with --in");
     let ds = cli_matches.value_of(cli::DIMENSIONAL_SEPARATOR);
     let na = cli_matches.is_present(cli::NUMERIC_ARRAYS);
