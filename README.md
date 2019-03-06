@@ -103,3 +103,28 @@ Will produce:
   }
 ]
 ```
+
+You can remove empty strings from objects and arrays with the `--remove-empty-strings` flag.
+
+**Note:** this happens for both objects and arrays, which may have undesirable affects.
+
+```csv
+name.first,name.last,age,pets.1,pets.2
+daniel,,34,,
+```
+
+```shell
+$ csv2json --in test.csv -d . -n --remove-empty-strings
+```
+
+```json
+[
+  {
+    "age": "34",
+    "name": {
+      "first": "daniel"
+    },
+    "pets": []
+  }
+]
+```
