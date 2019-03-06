@@ -4,7 +4,7 @@ pub fn group_numeric_arrays(value: Value) -> Value {
     match value {
         Value::Object(object) => group_numeric_arrays_in_object(object),
         Value::Array(arr) => group_numeric_arrays_in_array(arr),
-        _ => value
+        _ => value,
     }
 }
 
@@ -64,13 +64,14 @@ pub fn remove_empty_objects(value: Value) -> Value {
     match value {
         Value::Object(object) => remove_empty_objects_from_object(object),
         Value::Array(arr) => remove_empty_objects_from_array(arr),
-        _ => value
+        _ => value,
     }
 }
 
 fn remove_empty_objects_from_object(object: Map<String, Value>) -> Value {
     let new_object: Map<String, Value> = object
-        .into_iter().map(|(key, value)| (key, remove_empty_objects(value)))
+        .into_iter()
+        .map(|(key, value)| (key, remove_empty_objects(value)))
         .filter(|(_key, value)| !(value.is_object() && value.as_object().unwrap().is_empty()))
         .collect();
     json!(new_object)
@@ -89,13 +90,14 @@ pub fn remove_empty_strings(value: Value) -> Value {
     match value {
         Value::Object(object) => remove_empty_strings_from_object(object),
         Value::Array(arr) => remove_empty_strings_from_array(arr),
-        _ => value
+        _ => value,
     }
 }
 
 fn remove_empty_strings_from_object(object: Map<String, Value>) -> Value {
     let new_object: Map<String, Value> = object
-        .into_iter().map(|(key, value)| (key, remove_empty_strings(value)))
+        .into_iter()
+        .map(|(key, value)| (key, remove_empty_strings(value)))
         .filter(|(_key, value)| !(value.is_string() && value.as_str().unwrap().is_empty()))
         .collect();
     json!(new_object)
@@ -166,7 +168,7 @@ mod tests {
             let key = String::from("first.second.third");
             let value = String::from("value");
             assert_eq!(
-                super::dimensional_converter(key, value, None),
+                super::dimensional_converter(&key, &value, None),
                 (String::from("first.second.third"), json!("value"))
             )
         }
@@ -176,7 +178,7 @@ mod tests {
             let key = String::from("first.second.third");
             let value = String::from("value");
             assert_eq!(
-                super::dimensional_converter(key, value, Some(".")),
+                super::dimensional_converter(&key, &value, Some(".")),
                 (String::from("first"), json!({"second":{"third":"value"}}))
             )
         }
@@ -186,7 +188,7 @@ mod tests {
             let key = String::from("first.second.third");
             let value = String::from("value");
             assert_eq!(
-                super::dimensional_converter(key, value, Some("-")),
+                super::dimensional_converter(&key, &value, Some("-")),
                 (String::from("first.second.third"), json!("value"))
             )
         }

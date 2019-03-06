@@ -41,7 +41,7 @@ fn main() {
         .map(|row| -> Value {
             let mut items = Map::new();
 
-            row.into_iter().for_each(|(key, value)| {
+            row.iter().for_each(|(key, value)| {
                 let (key, value) = data::dimensional_converter(key, value, ds);
                 let prepared_value = data::prepare_upsert(items.entry(key.clone()), value);
                 items.insert(key, prepared_value);
@@ -64,23 +64,24 @@ fn main() {
     if let Some(out_dir) = out_dir {
         if let Some(out_name) = out_name {
             let raw_rows_iter = raw_rows.into_iter();
-            let items_iter = items.as_array().unwrap().iter().map(|v| v.clone());
-            let paired_data: Vec<(HashMap<String, String>, Value)> = raw_rows_iter.zip(items_iter).collect();
+            let items_iter = items.as_array().unwrap().iter().cloned();
+            let paired_data: Vec<(HashMap<String, String>, Value)> =
+                raw_rows_iter.zip(items_iter).collect();
 
             paired_data.iter().for_each(|(raw, data)| {
                 let output = serde_json::to_string_pretty(&data).unwrap();
                 let file_name = strfmt(&out_name, raw).unwrap();
-                sys::write_json_to_file(&out_dir, &file_name, &output).expect("Failed to write to file");
+                sys::write_json_to_file(&out_dir, &file_name, &output)
+                    .expect("Failed to write to file");
             })
         } else {
             let output = serde_json::to_string_pretty(&items).unwrap();
             let file_name = sys::get_file_name(&csv_file);
-            sys::write_json_to_file(&out_dir, &file_name, &output).expect("Failed to write to file");
+            sys::write_json_to_file(&out_dir, &file_name, &output)
+                .expect("Failed to write to file");
         }
     } else {
         let output = serde_json::to_string_pretty(&items).unwrap();
         println!("{}", output);
     }
 }
-
-
