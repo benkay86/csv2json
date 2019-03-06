@@ -3,6 +3,7 @@ use clap::{App, Arg, ArgMatches};
 
 pub const DIMENSIONAL_SEPARATOR: &str = "dimensional-separator";
 pub const NUMERIC_ARRAYS: &str = "numeric-arrays";
+pub const REMOVE_EMPTY_STRINGS: &str = "remove-empty-strings";
 
 pub fn get_matches<'a>() -> ArgMatches<'a> {
     configure_app().get_matches()
@@ -33,6 +34,13 @@ fn configure_app<'a, 'b>() -> App<'a, 'b> {
                 .long(NUMERIC_ARRAYS)
                 .value_name(NUMERIC_ARRAYS)
                 .help("Indicates the csv contains arrays represented by numeric keys. Use with -d")
+                .takes_value(false),
+        )
+        .arg(
+            Arg::with_name(REMOVE_EMPTY_STRINGS)
+                .long(REMOVE_EMPTY_STRINGS)
+                .value_name(REMOVE_EMPTY_STRINGS)
+                .help("Removes keys that contain empty strings")
                 .takes_value(false),
         )
 }
