@@ -7,6 +7,7 @@ pub const REMOVE_EMPTY_STRINGS: &str = "remove-empty-strings";
 pub const REMOVE_EMPTY_OBJECTS: &str = "remove-empty-objects";
 pub const IN: &str = "in";
 pub const OUT_DIR: &str = "out-dir";
+pub const OUT_NAME: &str = "out-name";
 
 pub fn get_matches<'a>() -> ArgMatches<'a> {
     configure_app().get_matches()
@@ -28,6 +29,14 @@ fn configure_app<'a, 'b>() -> App<'a, 'b> {
                 .short("o")
                 .long(OUT_DIR)
                 .value_name(OUT_DIR)
+                .help("Where to save the json file(s)")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name(OUT_NAME)
+                .short("f")
+                .long(OUT_NAME)
+                .value_name(OUT_NAME)
                 .help("Where to save the json file(s)")
                 .takes_value(true),
         )

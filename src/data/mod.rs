@@ -37,17 +37,17 @@ fn group_numeric_arrays_in_array(arr: Vec<Value>) -> Value {
     arr.into_iter().map(group_numeric_arrays).collect()
 }
 
-pub fn dimensional_converter(key: String, value: String, ds: Option<&str>) -> (String, Value) {
+pub fn dimensional_converter(key: &str, value: &str, ds: Option<&str>) -> (String, Value) {
     if let Some(separator) = ds {
         if key.contains(separator) {
             let mut parts = key.split(separator);
             let this_key = parts.next().unwrap().to_owned();
             let key_chain = parts.collect::<Vec<&str>>().join(".").to_owned();
-            let (next_key, data) = dimensional_converter(key_chain, value, Some(separator));
+            let (next_key, data) = dimensional_converter(&key_chain, value, Some(separator));
             return (this_key, json!({ next_key: data }));
         }
     }
-    (key, json!(value))
+    (key.to_owned(), json!(value))
 }
 
 pub fn prepare_upsert(entry: Entry, data: Value) -> Value {
