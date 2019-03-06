@@ -6,6 +6,7 @@ extern crate serde_json;
 
 mod cli;
 mod data;
+mod sys;
 
 use serde_json::Map;
 use serde_json::Value;
@@ -18,6 +19,7 @@ fn main() {
     let csv_file = cli_matches
         .value_of(cli::IN)
         .expect("You must specify an input csv with --in");
+    let out_dir = cli_matches.value_of(cli::OUT_DIR);
     let ds = cli_matches.value_of(cli::DIMENSIONAL_SEPARATOR);
     let na = cli_matches.is_present(cli::NUMERIC_ARRAYS);
     let res = cli_matches.is_present(cli::REMOVE_EMPTY_STRINGS);
@@ -52,5 +54,11 @@ fn main() {
         items = data::remove_empty_objects(items);
     }
 
-    println!("{}", serde_json::to_string_pretty(&items).unwrap());
+    let output = serde_json::to_string_pretty(&items).unwrap();
+    if let Some(out_dir) = out_dir {
+        let file_name = sys::get_file_name(&csv_file);
+        sys::write_json_to_file(&out_dir, &file_name, &output).expect("Failed to write to file");
+    } else {
+        println!("{}", output);
+    }
 }
