@@ -1,33 +1,40 @@
 use serde_json::{map::Entry, Map, Value};
 
 pub fn group_numeric_arrays(value: Value) -> Value {
-    // If there are no non-numeric keys we can turn this group into an array.
-    if let Value::Object(object) = value {
-        // Recurse over each element in the object
-        let object: Map<String, Value> = object
-            .into_iter()
-            .map(|(key, value)| {
-                let replacement = group_numeric_arrays(value);
-                (key, replacement)
-            })
-            .collect();
-
-        // Test if this object should be an array
-        let remaining_keys: Vec<bool> = object
-            .keys()
-            .filter(|k| k.parse::<u64>().is_err()) // Find anything the doesn't parse to u64
-            .map(|_| true)
-            .collect();
-
-        if remaining_keys.is_empty() {
-            let values: Vec<Value> = object.values().map(|i| i.to_owned()).collect();
-            json!(values)
-        } else {
-            json!(object)
-        }
-    } else {
-        value
+    match value {
+        Value::Object(object) => group_numeric_arrays_in_object(object),
+        Value::Array(arr) => group_numeric_arrays_in_array(arr),
+        _ => value
     }
+}
+
+fn group_numeric_arrays_in_object(object: Map<String, Value>) -> Value {
+    // Recurse over each element in the object
+    let object: Map<String, Value> = object
+        .into_iter()
+        .map(|(key, value)| {
+            let replacement = group_numeric_arrays(value);
+            (key, replacement)
+        })
+        .collect();
+
+    // Test if this object should be an array
+    let remaining_keys: Vec<bool> = object
+        .keys()
+        .filter(|k| k.parse::<u64>().is_err()) // Find anything the doesn't parse to u64
+        .map(|_| true)
+        .collect();
+
+    if remaining_keys.is_empty() {
+        let values: Vec<Value> = object.values().map(|i| i.to_owned()).collect();
+        json!(values)
+    } else {
+        json!(object)
+    }
+}
+
+fn group_numeric_arrays_in_array(arr: Vec<Value>) -> Value {
+    arr.into_iter().map(group_numeric_arrays).collect()
 }
 
 pub fn dimensional_converter(key: String, value: String, ds: Option<&str>) -> (String, Value) {
