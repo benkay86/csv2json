@@ -20,6 +20,7 @@ fn main() {
         .expect("You must specify an input csv with --in");
     let ds = cli_matches.value_of(cli::DIMENSIONAL_SEPARATOR);
     let na = cli_matches.is_present(cli::NUMERIC_ARRAYS);
+    let res = cli_matches.is_present(cli::REMOVE_EMPTY_STRINGS);
     let file = File::open(csv_file).expect("Could not read csv file");
     let mut csv_reader = csv::Reader::from_reader(file);
 
@@ -36,10 +37,14 @@ fn main() {
                 items.insert(key, prepared_value);
             });
 
-            let items = json!(items);
+            let mut items = json!(items);
 
             if na {
-                return data::group_numeric_arrays(items);
+                items = data::group_numeric_arrays(items);
+            }
+
+            if res {
+                data::remove_empty_strings(&mut items);
             }
 
             items

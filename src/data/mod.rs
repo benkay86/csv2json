@@ -53,6 +53,32 @@ pub fn prepare_upsert(entry: Entry, data: Value) -> Value {
     }
 }
 
+pub fn remove_empty_strings(value: &mut Value) {
+    match value {
+        Value::Object(object) => remove_empty_strings_from_object(object),
+        Value::Array(arr) => remove_empty_strings_from_array(arr),
+        _ => {}
+    }
+}
+
+fn remove_empty_strings_from_object(object: &mut Map<String, Value>) {
+    let mut keys_to_remove: Vec<String> = vec![];
+    object.iter_mut().for_each(|(key, mut value)| {
+        if value.is_string() && value.as_str().unwrap().is_empty() {
+            keys_to_remove.push(key.to_owned());
+        } else {
+            remove_empty_strings(&mut value)
+        }
+    });
+    keys_to_remove.iter().for_each(|key| {
+        object.remove(key);
+    })
+}
+
+fn remove_empty_strings_from_array(arr: &mut Vec<Value>) {
+    arr.retain(|value| !(value.is_string() && value.as_str().unwrap().is_empty()));
+}
+
 fn merge_values(v1: Value, v2: Value) -> Value {
     // If both values are objects combine on keys
     if v1.is_object() && v2.is_object() {
