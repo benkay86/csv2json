@@ -19,7 +19,7 @@ fn configure_app<'a, 'b>() -> App<'a, 'b> {
             Arg::with_name(IN)
                 .short("i")
                 .long(IN)
-                .value_name(IN)
+                .value_name("FILE")
                 .help("The csv file to read")
                 .takes_value(true)
                 .required(true),
@@ -28,7 +28,7 @@ fn configure_app<'a, 'b>() -> App<'a, 'b> {
             Arg::with_name(OUT_DIR)
                 .short("o")
                 .long(OUT_DIR)
-                .value_name(OUT_DIR)
+                .value_name("DIR")
                 .help("Where to save the json file(s)")
                 .takes_value(true),
         )
@@ -36,15 +36,15 @@ fn configure_app<'a, 'b>() -> App<'a, 'b> {
             Arg::with_name(OUT_NAME)
                 .short("f")
                 .long(OUT_NAME)
-                .value_name(OUT_NAME)
-                .help("Where to save the json file(s)")
+                .value_name("TEMPLATE")
+                .help("The template to use for naming multiple output files")
                 .takes_value(true),
         )
         .arg(
             Arg::with_name(DIMENSIONAL_SEPARATOR)
                 .short("d")
                 .long(DIMENSIONAL_SEPARATOR)
-                .value_name(DIMENSIONAL_SEPARATOR)
+                .value_name("SEPARATOR")
                 .help("A separator to break header names allowing you to create deeper objects")
                 .takes_value(true),
         )

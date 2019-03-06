@@ -2,7 +2,7 @@
 name = "csv2json"
 description = "Converts CSVs into JSON documents"
 license = "MIT"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Daniel Mason <daniel.mason@apolitical.co>"]
 repository = "https://github.com/apolitical/csv2json"
 readme = "README.md"
