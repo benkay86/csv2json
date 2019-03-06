@@ -21,6 +21,8 @@ Usage:
 $ csv2json --in <csv file> > <json file>
 ```
 
+### Dimensional Seperator
+
 If your CSV contains multidimensional data, you can add use the dimensional separator argument `-d`
 
 Eg:
@@ -52,6 +54,8 @@ Setting the separator `-d .`:
   }
 ]
 ```
+
+### Numeric Arrays
 
 You can use `--numeric-arrays` (or `-n`) with `-d` to break items into arrays
 
@@ -98,11 +102,14 @@ Will produce:
   {
     "name": "Daniel Mason",
     "pets": [
+        "",
         "Tinky"
     ]
   }
 ]
 ```
+
+### Remove Empty Strings
 
 You can remove empty strings from objects and arrays with the `--remove-empty-strings` flag.
 
@@ -125,6 +132,50 @@ $ csv2json --in test.csv -d . -n --remove-empty-strings
       "first": "daniel"
     },
     "pets": []
+  }
+]
+```
+
+### Remove Empty Objects
+
+You can remove empty objects from objects and arrays with the `--remove-empty-objects` flag.
+
+**Note:** this happens for both objects and arrays, which may have undesirable affects.
+
+```csv
+name.first,name.last,pets.1.name,pets.1.type,pets.2.name,pets.2.type
+james,smith,,,,
+daniel,mason,yuki,cat,tinky,cat
+```
+
+```shell
+$ csv2json --in test.csv -d . -n --remove-empty-strings --remove-empty-objects
+```
+
+```json
+[
+  {
+    "name": {
+      "first": "james",
+      "last": "smith"
+    },
+    "pets": []
+  },
+  {
+    "name": {
+      "first": "daniel",
+      "last": "mason"
+    },
+    "pets": [
+      {
+        "name": "yuki",
+        "type": "cat"
+      },
+      {
+        "name": "tinky",
+        "type": "cat"
+      }
+    ]
   }
 ]
 ```
