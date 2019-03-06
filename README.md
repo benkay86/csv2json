@@ -185,3 +185,57 @@ $ csv2json --in test.csv -d . -n --remove-empty-strings --remove-empty-objects
 Using the `--out-dir <dir>` to write the `.json` file to the output dir. It will use the name of the
 original file so `--in /some/dir/my-data.csv --out-dir /some/other/dir` will produce the file
 `/some/other/dir/my-data.json`.
+
+### Output to files based on names
+
+Using the `--out-name <template>` with `--out-dir <dir>` to write multiple files of json using the
+template to generate their name from the original data. For example
+
+Given `test.csv`
+```csv
+name.first,name.last,pets.1.name,pets.1.type,pets.2.name,pets.2.type
+james,smith,suki,cat,,
+daniel,mason,yuki,cat,tinky,cat
+```
+
+Running csv2json with the following naming template
+```shell
+$ csv2json --in test.csv --out-dir . --out-name "{name.first}-{name.last}" -d . -n --remove-empty-strings --remove-empty-objects
+```
+
+Will produce the following files
+
+`james-smith.json`
+```json
+{
+  "name": {
+    "first": "james",
+    "last": "smith"
+  },
+  "pets": [
+    {
+      "name": "suki",
+      "type": "cat"
+    }
+  ]
+}
+```
+`daniel-mason.json`
+```json
+{
+  "name": {
+    "first": "daniel",
+    "last": "mason"
+  },
+  "pets": [
+    {
+      "name": "yuki",
+      "type": "cat"
+    },
+    {
+      "name": "tinky",
+      "type": "cat"
+    }
+  ]
+}
+```

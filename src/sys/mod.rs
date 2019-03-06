@@ -15,11 +15,11 @@ pub fn write_json_to_file(
     file_name: &AsRef<Path>,
     data: &AsRef<[u8]>,
 ) -> Result<()> {
-    let mut file = File::create(
-        out_dir
-            .as_ref()
-            .join(file_name.as_ref())
-            .with_extension("json"),
-    )?;
+    let file_name = out_dir
+        .as_ref()
+        .join(file_name.as_ref())
+        .with_extension("json");
+    eprintln!("Writing to {}", file_name.to_string_lossy());
+    let mut file = File::create(file_name)?;
     file.write(data.as_ref()).map(|_| ())
 }

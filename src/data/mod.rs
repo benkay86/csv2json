@@ -4,7 +4,7 @@ pub fn group_numeric_arrays(value: Value) -> Value {
     match value {
         Value::Object(object) => group_numeric_arrays_in_object(object),
         Value::Array(arr) => group_numeric_arrays_in_array(arr),
-        _ => value
+        _ => value,
     }
 }
 
@@ -37,17 +37,17 @@ fn group_numeric_arrays_in_array(arr: Vec<Value>) -> Value {
     arr.into_iter().map(group_numeric_arrays).collect()
 }
 
-pub fn dimensional_converter(key: String, value: String, ds: Option<&str>) -> (String, Value) {
+pub fn dimensional_converter(key: &str, value: &str, ds: Option<&str>) -> (String, Value) {
     if let Some(separator) = ds {
         if key.contains(separator) {
             let mut parts = key.split(separator);
             let this_key = parts.next().unwrap().to_owned();
             let key_chain = parts.collect::<Vec<&str>>().join(".").to_owned();
-            let (next_key, data) = dimensional_converter(key_chain, value, Some(separator));
+            let (next_key, data) = dimensional_converter(&key_chain, value, Some(separator));
             return (this_key, json!({ next_key: data }));
         }
     }
-    (key, json!(value))
+    (key.to_owned(), json!(value))
 }
 
 pub fn prepare_upsert(entry: Entry, data: Value) -> Value {
@@ -64,13 +64,14 @@ pub fn remove_empty_objects(value: Value) -> Value {
     match value {
         Value::Object(object) => remove_empty_objects_from_object(object),
         Value::Array(arr) => remove_empty_objects_from_array(arr),
-        _ => value
+        _ => value,
     }
 }
 
 fn remove_empty_objects_from_object(object: Map<String, Value>) -> Value {
     let new_object: Map<String, Value> = object
-        .into_iter().map(|(key, value)| (key, remove_empty_objects(value)))
+        .into_iter()
+        .map(|(key, value)| (key, remove_empty_objects(value)))
         .filter(|(_key, value)| !(value.is_object() && value.as_object().unwrap().is_empty()))
         .collect();
     json!(new_object)
@@ -89,13 +90,14 @@ pub fn remove_empty_strings(value: Value) -> Value {
     match value {
         Value::Object(object) => remove_empty_strings_from_object(object),
         Value::Array(arr) => remove_empty_strings_from_array(arr),
-        _ => value
+        _ => value,
     }
 }
 
 fn remove_empty_strings_from_object(object: Map<String, Value>) -> Value {
     let new_object: Map<String, Value> = object
-        .into_iter().map(|(key, value)| (key, remove_empty_strings(value)))
+        .into_iter()
+        .map(|(key, value)| (key, remove_empty_strings(value)))
         .filter(|(_key, value)| !(value.is_string() && value.as_str().unwrap().is_empty()))
         .collect();
     json!(new_object)
@@ -166,7 +168,7 @@ mod tests {
             let key = String::from("first.second.third");
             let value = String::from("value");
             assert_eq!(
-                super::dimensional_converter(key, value, None),
+                super::dimensional_converter(&key, &value, None),
                 (String::from("first.second.third"), json!("value"))
             )
         }
@@ -176,7 +178,7 @@ mod tests {
             let key = String::from("first.second.third");
             let value = String::from("value");
             assert_eq!(
-                super::dimensional_converter(key, value, Some(".")),
+                super::dimensional_converter(&key, &value, Some(".")),
                 (String::from("first"), json!({"second":{"third":"value"}}))
             )
         }
@@ -186,7 +188,7 @@ mod tests {
             let key = String::from("first.second.third");
             let value = String::from("value");
             assert_eq!(
-                super::dimensional_converter(key, value, Some("-")),
+                super::dimensional_converter(&key, &value, Some("-")),
                 (String::from("first.second.third"), json!("value"))
             )
         }
