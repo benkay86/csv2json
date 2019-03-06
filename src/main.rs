@@ -63,6 +63,7 @@ fn main() {
 
     if let Some(out_dir) = out_dir {
         if let Some(out_name) = out_name {
+            // If a template name was used.
             let raw_rows_iter = raw_rows.into_iter();
             let items_iter = items.as_array().unwrap().iter().cloned();
             let paired_data: Vec<(HashMap<String, String>, Value)> =
@@ -75,12 +76,14 @@ fn main() {
                     .expect("Failed to write to file");
             })
         } else {
+            // If no template name was provided
             let output = serde_json::to_string_pretty(&items).unwrap();
             let file_name = sys::get_file_name(&csv_file);
             sys::write_json_to_file(&out_dir, &file_name, &output)
                 .expect("Failed to write to file");
         }
     } else {
+        // If no output was specified
         let output = serde_json::to_string_pretty(&items).unwrap();
         println!("{}", output);
     }
