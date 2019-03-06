@@ -6,6 +6,7 @@ pub const NUMERIC_ARRAYS: &str = "numeric-arrays";
 pub const REMOVE_EMPTY_STRINGS: &str = "remove-empty-strings";
 pub const REMOVE_EMPTY_OBJECTS: &str = "remove-empty-objects";
 pub const IN: &str = "in";
+pub const OUT_DIR: &str = "out-dir";
 
 pub fn get_matches<'a>() -> ArgMatches<'a> {
     configure_app().get_matches()
@@ -21,6 +22,14 @@ fn configure_app<'a, 'b>() -> App<'a, 'b> {
                 .help("The csv file to read")
                 .takes_value(true)
                 .required(true),
+        )
+        .arg(
+            Arg::with_name(OUT_DIR)
+                .short("o")
+                .long(OUT_DIR)
+                .value_name(OUT_DIR)
+                .help("Where to save the json file(s)")
+                .takes_value(true),
         )
         .arg(
             Arg::with_name(DIMENSIONAL_SEPARATOR)

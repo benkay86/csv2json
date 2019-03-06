@@ -179,3 +179,9 @@ $ csv2json --in test.csv -d . -n --remove-empty-strings --remove-empty-objects
   }
 ]
 ```
+
+### Output to directory
+
+Using the `--out-dir <dir>` to write the `.json` file to the output dir. It will use the name of the
+original file so `--in /some/dir/my-data.csv --out-dir /some/other/dir` will produce the file
+`/some/other/dir/my-data.json`.
