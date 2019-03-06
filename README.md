@@ -239,3 +239,45 @@ Will produce the following files
   ]
 }
 ```
+
+### Types
+
+#### Booleans
+
+You can specify a column contains a boolean value by using the `--boolean` option
+
+```csv
+name.first,name.last,option.a,option.b,option.c,option.d
+james,smith,1,true,anything,TRUE
+daniel,mason,0,false,,FALSE
+```
+
+```shell
+$ csv2json --in test.csv -d . --boolean option.a --boolean option.b --boolean option.c --boolean option.d
+[
+  {
+    "name": {
+      "first": "james",
+      "last": "smith"
+    },
+    "option": {
+      "a": true,
+      "b": true,
+      "c": true,
+      "d": true
+    }
+  },
+  {
+    "name": {
+      "first": "daniel",
+      "last": "mason"
+    },
+    "option": {
+      "a": false,
+      "b": false,
+      "c": false,
+      "d": false
+    }
+  }
+]
+```

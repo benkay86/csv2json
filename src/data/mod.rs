@@ -37,7 +37,7 @@ fn group_numeric_arrays_in_array(arr: Vec<Value>) -> Value {
     arr.into_iter().map(group_numeric_arrays).collect()
 }
 
-pub fn dimensional_converter(key: &str, value: &str, ds: Option<&str>) -> (String, Value) {
+pub fn dimensional_converter(key: &str, value: &Value, ds: Option<&str>) -> (String, Value) {
     if let Some(separator) = ds {
         if key.contains(separator) {
             let mut parts = key.split(separator);
@@ -156,6 +156,15 @@ fn merge_values(v1: Value, v2: Value) -> Value {
 
     // Otherwise create a new array with both items
     json!([v1, v2])
+}
+
+pub fn string_to_bool(string: &str) -> bool {
+    match string.to_lowercase().as_str() {
+        "" => false,
+        "0" => false,
+        "false" => false,
+        _ => true,
+    }
 }
 
 #[cfg(test)]

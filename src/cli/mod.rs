@@ -8,6 +8,7 @@ pub const REMOVE_EMPTY_OBJECTS: &str = "remove-empty-objects";
 pub const IN: &str = "in";
 pub const OUT_DIR: &str = "out-dir";
 pub const OUT_NAME: &str = "out-name";
+pub const BOOLEAN: &str = "boolean";
 
 pub fn get_matches<'a>() -> ArgMatches<'a> {
     configure_app().get_matches()
@@ -52,9 +53,17 @@ fn configure_app<'a, 'b>() -> App<'a, 'b> {
             Arg::with_name(NUMERIC_ARRAYS)
                 .short("n")
                 .long(NUMERIC_ARRAYS)
-                .value_name(NUMERIC_ARRAYS)
                 .help("Indicates the csv contains arrays represented by numeric keys. Use with -d")
                 .takes_value(false),
+        )
+        .arg(
+            Arg::with_name(BOOLEAN)
+                .short("b")
+                .long(BOOLEAN)
+                .value_name("COLUMN")
+                .help("Indicate that COLUMN is a boolean")
+                .takes_value(true)
+                .multiple(true),
         )
         .arg(
             Arg::with_name(REMOVE_EMPTY_STRINGS)
