@@ -38,17 +38,7 @@ fn main() {
         .map(|result| -> HashMap<String, String> { result.unwrap() })
         .filter(|row| !row.is_empty())
         .map(data::row_to_values)
-        .map(|map| -> HashMap<String, Value> {
-            map.into_iter()
-                .map(|(key, value)| {
-                    if boolean_columns.contains(&key) {
-                        (key, Value::Bool(data::value_to_bool(&value)))
-                    } else {
-                        (key, value)
-                    }
-                })
-                .collect()
-        })
+        .map(|map| data::columns_to_booleans(&boolean_columns, map))
         .collect();
 
     let mut items: Value = raw_rows

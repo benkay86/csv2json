@@ -1,5 +1,5 @@
 use serde_json::{map::Entry, Map, Value, Number};
-use std::collections::HashMap;
+use std::collections::{HashMap, hash_map::Entry as HashMapEntry};
 
 pub fn group_numeric_arrays(value: Value) -> Value {
     match value {
@@ -191,8 +191,17 @@ pub fn value_to_bool(value: &Value) -> bool {
     }
 }
 
-pub fn row_to_values(map: HashMap<String, String>) -> HashMap<String, Value> {
-    map.into_iter().map(|(key, value)| (key, Value::String(value))).collect()
+pub fn row_to_values(row: HashMap<String, String>) -> HashMap<String, Value> {
+    row.into_iter().map(|(key, value)| (key, Value::String(value))).collect()
+}
+
+pub fn columns_to_booleans(columns: &Vec<String>, mut row: HashMap<String, Value>) -> HashMap<String, Value> {
+    columns.iter().for_each(|column| {
+        if let HashMapEntry::Occupied(entry) = row.entry(column.to_string()) {
+            *entry.into_mut() = Value::Bool(value_to_bool(entry.get()));
+        }
+    });
+    row
 }
 
 #[cfg(test)]
