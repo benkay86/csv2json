@@ -236,7 +236,7 @@ pub fn row_to_values(row: HashMap<String, String>) -> HashMap<String, Value> {
     row.into_iter().map(|(key, value)| (key, Value::String(value))).collect()
 }
 
-pub fn columns_to_booleans(columns: &Vec<String>, mut row: HashMap<String, Value>) -> HashMap<String, Value> {
+pub fn columns_to_booleans(columns: &[String], mut row: HashMap<String, Value>) -> HashMap<String, Value> {
     columns.iter().for_each(|column| {
         if let HashMapEntry::Occupied(entry) = row.entry(column.to_string()) {
             *entry.into_mut() = Value::Bool(value_to_bool(entry.get()));
@@ -245,7 +245,7 @@ pub fn columns_to_booleans(columns: &Vec<String>, mut row: HashMap<String, Value
     row
 }
 
-pub fn columns_to_numbers(columns: &Vec<String>, mut row: HashMap<String, Value>) -> HashMap<String, Value> {
+pub fn columns_to_numbers(columns: &[String], mut row: HashMap<String, Value>) -> HashMap<String, Value> {
     columns.iter().for_each(|column| {
         if let HashMapEntry::Occupied(entry) = row.entry(column.to_string()) {
             *entry.into_mut() = Value::Number(value_to_number(entry.get()));
