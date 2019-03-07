@@ -175,30 +175,30 @@ mod tests {
         #[test]
         fn it_does_simple_json_conversion_with_no_separator() {
             let key = String::from("first.second.third");
-            let value = String::from("value");
+            let value = json!("value");
             assert_eq!(
                 super::dimensional_converter(&key, &value, None),
-                (String::from("first.second.third"), json!("value"))
+                (String::from("first.second.third"), value)
             )
         }
 
         #[test]
         fn it_creates_objects_on_separation() {
             let key = String::from("first.second.third");
-            let value = String::from("value");
+            let value = json!("value");
             assert_eq!(
                 super::dimensional_converter(&key, &value, Some(".")),
-                (String::from("first"), json!({"second":{"third":"value"}}))
+                (String::from("first"), json!({"second":{"third":&value}}))
             )
         }
 
         #[test]
         fn it_does_simple_json_conversion_when_seperator_not_found() {
             let key = String::from("first.second.third");
-            let value = String::from("value");
+            let value = json!("value");
             assert_eq!(
                 super::dimensional_converter(&key, &value, Some("-")),
-                (String::from("first.second.third"), json!("value"))
+                (String::from("first.second.third"), value)
             )
         }
     }
