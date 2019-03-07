@@ -30,9 +30,15 @@ fn main() {
     let res = cli_matches.is_present(cli::REMOVE_EMPTY_STRINGS);
     let reo = cli_matches.is_present(cli::REMOVE_EMPTY_OBJECTS);
     let file = File::open(csv_file).expect("Could not read csv file");
-    let boolean_columns = cli_matches.values_of_lossy(cli::BOOLEAN).unwrap_or_else(|| vec![]);
-    let numeric_columns = cli_matches.values_of_lossy(cli::NUMERIC).unwrap_or_else(|| vec![]);
-    let mut csv_reader = csv::ReaderBuilder::new().delimiter(delimiter_byte).from_reader(file);
+    let boolean_columns = cli_matches
+        .values_of_lossy(cli::BOOLEAN)
+        .unwrap_or_else(|| vec![]);
+    let numeric_columns = cli_matches
+        .values_of_lossy(cli::NUMERIC)
+        .unwrap_or_else(|| vec![]);
+    let mut csv_reader = csv::ReaderBuilder::new()
+        .delimiter(delimiter_byte)
+        .from_reader(file);
 
     let raw_rows: Vec<HashMap<String, Value>> = csv_reader
         .deserialize()

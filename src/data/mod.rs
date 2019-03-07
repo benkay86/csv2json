@@ -1,5 +1,5 @@
-use serde_json::{map::Entry, Map, Value, Number};
-use std::collections::{HashMap, hash_map::Entry as HashMapEntry};
+use serde_json::{map::Entry, Map, Number, Value};
+use std::collections::{hash_map::Entry as HashMapEntry, HashMap};
 
 pub fn group_numeric_arrays(value: Value) -> Value {
     match value {
@@ -226,17 +226,24 @@ pub fn value_to_number(value: &Value) -> Number {
         &Value::Null => 0.into(),
         Value::Bool(boolean) => boolean_to_number(*boolean),
         Value::Number(number) => number.clone(),
-        Value::String(string) => string_to_number(&string).expect("Could not calculate numeric value of column"),
+        Value::String(string) => {
+            string_to_number(&string).expect("Could not calculate numeric value of column")
+        }
         Value::Array(array) => boolean_to_number(!array.is_empty()),
         Value::Object(object) => boolean_to_number(!object.is_empty()),
     }
 }
 
 pub fn row_to_values(row: HashMap<String, String>) -> HashMap<String, Value> {
-    row.into_iter().map(|(key, value)| (key, Value::String(value))).collect()
+    row.into_iter()
+        .map(|(key, value)| (key, Value::String(value)))
+        .collect()
 }
 
-pub fn columns_to_booleans(columns: &[String], mut row: HashMap<String, Value>) -> HashMap<String, Value> {
+pub fn columns_to_booleans(
+    columns: &[String],
+    mut row: HashMap<String, Value>,
+) -> HashMap<String, Value> {
     columns.iter().for_each(|column| {
         if let HashMapEntry::Occupied(entry) = row.entry(column.to_string()) {
             *entry.into_mut() = Value::Bool(value_to_bool(entry.get()));
@@ -245,7 +252,10 @@ pub fn columns_to_booleans(columns: &[String], mut row: HashMap<String, Value>) 
     row
 }
 
-pub fn columns_to_numbers(columns: &[String], mut row: HashMap<String, Value>) -> HashMap<String, Value> {
+pub fn columns_to_numbers(
+    columns: &[String],
+    mut row: HashMap<String, Value>,
+) -> HashMap<String, Value> {
     columns.iter().for_each(|column| {
         if let HashMapEntry::Occupied(entry) = row.entry(column.to_string()) {
             *entry.into_mut() = Value::Number(value_to_number(entry.get()));
