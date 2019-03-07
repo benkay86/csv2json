@@ -170,11 +170,11 @@ fn string_to_bool(string: &str) -> bool {
 
 fn number_to_bool(number: &Number) -> bool {
     if number.is_u64() {
-        number.as_u64().unwrap() == 0
+        number.as_u64().unwrap() != 0
     } else if number.is_i64() {
-        number.as_i64().unwrap() == 0
-    } else if number.as_f64() {
-        number.as_f64().unwrap() == 0.0
+        number.as_i64().unwrap() != 0
+    } else if number.is_f64() {
+        number.as_f64().unwrap() != 0.0
     } else {
         panic!("serde_json have changed their api, it is no longer possible to determine the type of numbers")
     }
@@ -338,6 +338,102 @@ mod tests {
             let v1 = json!({"k1":"v1"});
             let v2 = json!({"k1":"v2"});
             assert_eq!(super::merge_values(v1, v2), json!({"k1":["v1","v2"]}));
+        }
+    }
+
+    mod number_to_bool {
+        #[test]
+        fn it_converts_u64s() {
+            let zero: u64 = 0;
+            let one: u64 = 1;
+
+            let zero = match json!(zero) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+            let one = match json!(one) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+
+            assert!(!super::number_to_bool(&zero));
+            assert!(super::number_to_bool(&one));
+        }
+
+        #[test]
+        fn it_converts_i64s() {
+            let zero: i64 = 0;
+            let one: i64 = 1;
+            let minus_one: i64 = 1;
+
+            let zero = match json!(zero) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+            let one = match json!(one) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+            let minus_one = match json!(minus_one) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+
+            assert!(!super::number_to_bool(&zero));
+            assert!(super::number_to_bool(&one));
+            assert!(super::number_to_bool(&minus_one));
+        }
+
+        #[test]
+        fn it_converts_f64s() {
+            let zero: f64 = 0.0;
+            let one: f64 = 1.0;
+            let huge: f64 = 1.0e+40;
+            let tiny: f64 = 1.0e-40;
+
+            let zero = match json!(zero) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+            let one = match json!(one) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+            let huge = match json!(huge) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+            let tiny = match json!(tiny) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+
+            assert!(!super::number_to_bool(&zero));
+            assert!(super::number_to_bool(&one));
+            assert!(super::number_to_bool(&huge));
+            assert!(super::number_to_bool(&tiny));
+        }
+    }
+
+    mod boolean_to_number {
+        #[test]
+        fn it_converts_true_to_one() {
+            let b = true;
+            let one = match json!(1) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+            assert_eq!(super::boolean_to_number(b), one)
+        }
+
+        #[test]
+        fn it_converts_false_to_zero() {
+            let b = false;
+            let zero = match json!(0) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+            assert_eq!(super::boolean_to_number(b), zero)
         }
     }
 }
