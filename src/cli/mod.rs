@@ -1,6 +1,7 @@
 use clap::{app_from_crate, crate_authors, crate_description, crate_name, crate_version};
 use clap::{App, Arg, ArgMatches};
 
+pub const DELIMITER: &str = "delimiter";
 pub const DIMENSIONAL_SEPARATOR: &str = "dimensional-separator";
 pub const ARRAYS: &str = "arrays";
 pub const REMOVE_EMPTY_STRINGS: &str = "remove-empty-strings";
@@ -41,6 +42,15 @@ fn configure_app<'a, 'b>() -> App<'a, 'b> {
                 .value_name("TEMPLATE")
                 .help("The template to use for naming multiple output files")
                 .takes_value(true),
+        )
+        .arg(
+            Arg::with_name(DELIMITER)
+                .short("d")
+                .long(DELIMITER)
+                .value_name("DELIMITER")
+                .help("What delimiter does your csv use")
+                .takes_value(true)
+                .default_value(","),
         )
         .arg(
             Arg::with_name(DIMENSIONAL_SEPARATOR)

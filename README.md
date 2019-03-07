@@ -21,6 +21,35 @@ Usage:
 $ csv2json --in <csv file> > <json file>
 ```
 
+### CSV Delimiter
+
+By default, the csv is split by commas. If your csv is delimited in a different way, you can
+specify the character using the `--delimiter` or `-d` option
+
+Eg:
+```csv
+colon:delimited
+one:two
+```
+Without specifying:
+```json
+[
+  {
+    "colon:delimited": "one:two"
+  }
+]
+```
+Using `-d :`
+```json
+[
+  {
+    "colon": "one",
+    "delimited": "two"
+  }
+]
+```
+
+
 ### Dimensional Seperator
 
 If your CSV contains multidimensional data, you can add use the dimensional separator argument `-d`
@@ -57,7 +86,7 @@ Setting the separator `-d .`:
 
 ### Arrays
 
-You can use `--arrays` (or `-n`) with `-d` to break items into arrays
+You can use `--arrays` (or `-a`) with `-d` to break items into arrays
 
 ```csv
 name,pets.1,pets.2
@@ -75,7 +104,7 @@ Without using arrays:
 ]
 ```
 
-With arrays (`-d . -n`):
+With arrays (`-d . -a`):
 ```json
 [
   {
@@ -121,7 +150,7 @@ daniel,,34,,
 ```
 
 ```shell
-$ csv2json --in test.csv -d . -n --remove-empty-strings
+$ csv2json --in test.csv -d . -a --remove-empty-strings
 ```
 
 ```json
@@ -149,7 +178,7 @@ daniel,mason,yuki,cat,tinky,cat
 ```
 
 ```shell
-$ csv2json --in test.csv -d . -n --remove-empty-strings --remove-empty-objects
+$ csv2json --in test.csv -d . -a --remove-empty-strings --remove-empty-objects
 ```
 
 ```json
@@ -200,7 +229,7 @@ daniel,mason,yuki,cat,tinky,cat
 
 Running csv2json with the following naming template
 ```shell
-$ csv2json --in test.csv --out-dir . --out-name "{name.first}-{name.last}" -d . -n --remove-empty-strings --remove-empty-objects
+$ csv2json --in test.csv --out-dir . --out-name "{name.first}-{name.last}" -d . -a --remove-empty-strings --remove-empty-objects
 ```
 
 Will produce the following files
