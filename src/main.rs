@@ -23,6 +23,8 @@ fn main() {
         .expect("You must specify an input csv with --in");
     let out_dir = cli_matches.value_of(cli::OUT_DIR);
     let out_name = cli_matches.value_of(cli::OUT_NAME);
+    let delimiter = cli_matches.value_of(cli::DELIMITER).unwrap(); // Has a default
+    let delimiter_byte = *delimiter.as_bytes().first().expect("No delimiter provided");
     let ds = cli_matches.value_of(cli::DIMENSIONAL_SEPARATOR);
     let na = cli_matches.is_present(cli::ARRAYS);
     let res = cli_matches.is_present(cli::REMOVE_EMPTY_STRINGS);
@@ -30,7 +32,7 @@ fn main() {
     let file = File::open(csv_file).expect("Could not read csv file");
     let boolean_columns = cli_matches.values_of_lossy(cli::BOOLEAN).unwrap_or_else(|| vec![]);
     let numeric_columns = cli_matches.values_of_lossy(cli::NUMERIC).unwrap_or_else(|| vec![]);
-    let mut csv_reader = csv::Reader::from_reader(file);
+    let mut csv_reader = csv::ReaderBuilder::new().delimiter(delimiter_byte).from_reader(file);
 
     let raw_rows: Vec<HashMap<String, Value>> = csv_reader
         .deserialize()

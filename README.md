@@ -21,6 +21,35 @@ Usage:
 $ csv2json --in <csv file> > <json file>
 ```
 
+### CSV Delimiter
+
+By default, the csv is split by commas. If your csv is delimited in a different way, you can
+specify the character using the `--delimiter` or `-d` option
+
+Eg:
+```csv
+colon:delimited
+one:two
+```
+Without specifying:
+```json
+[
+  {
+    "colon:delimited": "one:two"
+  }
+]
+```
+Using `-d :`
+```json
+[
+  {
+    "colon": "one",
+    "delimited": "two"
+  }
+]
+```
+
+
 ### Dimensional Seperator
 
 If your CSV contains multidimensional data, you can add use the dimensional separator argument `-d`
