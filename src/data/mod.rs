@@ -1,4 +1,5 @@
 use serde_json::{map::Entry, Map, Value};
+use std::collections::HashMap;
 
 pub fn group_numeric_arrays(value: Value) -> Value {
     match value {
@@ -165,6 +166,10 @@ pub fn string_to_bool(string: &str) -> bool {
         "false" => false,
         _ => true,
     }
+}
+
+pub fn row_to_values(map: HashMap<String, String>) -> HashMap<String, Value> {
+    map.into_iter().map(|(key, value)| (key, Value::String(value))).collect()
 }
 
 #[cfg(test)]

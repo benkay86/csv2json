@@ -37,6 +37,7 @@ fn main() {
         .filter(|result| result.is_ok())
         .map(|result| -> HashMap<String, String> { result.unwrap() })
         .filter(|row| !row.is_empty())
+        .map(data::row_to_values)
         .map(|map| -> HashMap<String, Value> {
             map.into_iter()
                 .map(|(key, value)| {
