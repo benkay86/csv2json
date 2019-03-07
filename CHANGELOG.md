@@ -1,6 +1,28 @@
 Change log
 ==========
 
+[0.3.0]
+
+### Changed
+
+- `--numeric-arrays` is now just `--arrays` and `-n` becomes `-a`
+- `--dimensional-separator` changed its short notation from `-d` to `-D`
+
+### Fixed
+
+- Bug where items that only contain empty items were not cleared away correctly, even when their
+  children were.
+
+### Added
+
+- `--boolean`, `-b` to identify columns that contain boolean values
+- `--numeric`, `-n` to identify columns that contain numeric values
+- `--delimiter`, `-d` to identify specify column delimiters other than `,`
+
+### Known Issues
+
+- Currently we can't support escaped characters for delimiter values, such as `-d \t`
+
 [0.2.0] - 2019-03-06
 --------------------
 
