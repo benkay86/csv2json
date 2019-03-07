@@ -42,9 +42,9 @@ fn main() {
             map.into_iter()
                 .map(|(key, value)| {
                     if boolean_columns.contains(&key) {
-                        (key, Value::Bool(data::string_to_bool(&value)))
+                        (key, Value::Bool(data::value_to_bool(&value)))
                     } else {
-                        (key, Value::String(value))
+                        (key, value)
                     }
                 })
                 .collect()

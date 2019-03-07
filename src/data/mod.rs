@@ -1,4 +1,4 @@
-use serde_json::{map::Entry, Map, Value};
+use serde_json::{map::Entry, Map, Value, Number};
 use std::collections::HashMap;
 
 pub fn group_numeric_arrays(value: Value) -> Value {
@@ -159,12 +159,35 @@ fn merge_values(v1: Value, v2: Value) -> Value {
     json!([v1, v2])
 }
 
-pub fn string_to_bool(string: &str) -> bool {
+fn string_to_bool(string: &str) -> bool {
     match string.to_lowercase().as_str() {
         "" => false,
         "0" => false,
         "false" => false,
         _ => true,
+    }
+}
+
+fn number_to_bool(number: &Number) -> bool {
+    if number.is_u64() {
+        number.as_u64().unwrap() == 0
+    } else if number.is_i64() {
+        number.as_i64().unwrap() == 0
+    } else if number.is_i64() {
+        number.as_f64().unwrap() == 0.0
+    } else {
+        panic!("serde_json have changed their api, it is no longer possible to determine the type of numbers")
+    }
+}
+
+pub fn value_to_bool(value: &Value) -> bool {
+    match value {
+        &Value::Null => false,
+        Value::Bool(current_value) => *current_value,
+        Value::Number(number) => number_to_bool(&number),
+        Value::String(string) => string_to_bool(&string),
+        Value::Array(array) => !array.is_empty(),
+        Value::Object(object) => !object.is_empty(),
     }
 }
 
