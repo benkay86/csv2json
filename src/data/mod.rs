@@ -183,11 +183,52 @@ fn number_to_bool(number: &Number) -> bool {
 pub fn value_to_bool(value: &Value) -> bool {
     match value {
         &Value::Null => false,
-        Value::Bool(current_value) => *current_value,
+        Value::Bool(boolean) => *boolean,
         Value::Number(number) => number_to_bool(&number),
         Value::String(string) => string_to_bool(&string),
         Value::Array(array) => !array.is_empty(),
         Value::Object(object) => !object.is_empty(),
+    }
+}
+
+fn boolean_to_number(boolean: bool) -> Number {
+    if boolean {
+        1.into()
+    } else {
+        0.into()
+    }
+}
+
+fn string_to_number(string: &str) -> Result<Number, &str> {
+    if let Ok(unsigned) = string.parse::<u64>() {
+        let unsigned = json!(unsigned);
+        if let Value::Number(unsigned) = unsigned {
+            return Ok(unsigned);
+        }
+    }
+    if let Ok(signed) = string.parse::<i64>() {
+        let signed = json!(signed);
+        if let Value::Number(signed) = signed {
+            return Ok(signed);
+        }
+    }
+    if let Ok(float) = string.parse::<f64>() {
+        let float = json!(float);
+        if let Value::Number(float) = float {
+            return Ok(float);
+        }
+    }
+    Err(string)
+}
+
+pub fn value_to_number(value: &Value) -> Number {
+    match value {
+        &Value::Null => 0.into(),
+        Value::Bool(boolean) => boolean_to_number(*boolean),
+        Value::Number(number) => number.clone(),
+        Value::String(string) => string_to_number(&string).expect("Could not calculate numeric value of column"),
+        Value::Array(array) => boolean_to_number(!array.is_empty()),
+        Value::Object(object) => boolean_to_number(!object.is_empty()),
     }
 }
 
@@ -199,6 +240,15 @@ pub fn columns_to_booleans(columns: &Vec<String>, mut row: HashMap<String, Value
     columns.iter().for_each(|column| {
         if let HashMapEntry::Occupied(entry) = row.entry(column.to_string()) {
             *entry.into_mut() = Value::Bool(value_to_bool(entry.get()));
+        }
+    });
+    row
+}
+
+pub fn columns_to_numbers(columns: &Vec<String>, mut row: HashMap<String, Value>) -> HashMap<String, Value> {
+    columns.iter().for_each(|column| {
+        if let HashMapEntry::Occupied(entry) = row.entry(column.to_string()) {
+            *entry.into_mut() = Value::Number(value_to_number(entry.get()));
         }
     });
     row

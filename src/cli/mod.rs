@@ -9,6 +9,7 @@ pub const IN: &str = "in";
 pub const OUT_DIR: &str = "out-dir";
 pub const OUT_NAME: &str = "out-name";
 pub const BOOLEAN: &str = "boolean";
+pub const NUMERIC: &str = "numeric";
 
 pub fn get_matches<'a>() -> ArgMatches<'a> {
     configure_app().get_matches()
@@ -62,6 +63,15 @@ fn configure_app<'a, 'b>() -> App<'a, 'b> {
                 .long(BOOLEAN)
                 .value_name("COLUMN")
                 .help("Indicate that COLUMN is a boolean")
+                .takes_value(true)
+                .multiple(true),
+        )
+        .arg(
+            Arg::with_name(NUMERIC)
+                .short("n")
+                .long(NUMERIC)
+                .value_name("COLUMN")
+                .help("Indicate that COLUMN is numeric")
                 .takes_value(true)
                 .multiple(true),
         )

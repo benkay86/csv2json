@@ -274,5 +274,34 @@ $ csv2json --in test.csv -d . --boolean option.a --boolean option.b --boolean op
     "type": "false"
   }
 ]
+```
 
+#### Numerics
+
+You can specify a column contains a numeric value by using the `--numeric` option
+
+```csv
+number
+0
+1
+-1
+1.0
+```
+
+```shell
+$ csv2json --in test.csv --numeric number
+[
+  {
+    "number": 0
+  },
+  {
+    "number": 1
+  },
+  {
+    "number": -1
+  },
+  {
+    "number": 1.0
+  }
+]
 ```
