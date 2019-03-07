@@ -55,16 +55,16 @@ Setting the separator `-d .`:
 ]
 ```
 
-### Numeric Arrays
+### Arrays
 
-You can use `--numeric-arrays` (or `-n`) with `-d` to break items into arrays
+You can use `--arrays` (or `-n`) with `-d` to break items into arrays
 
 ```csv
 name,pets.1,pets.2
 Daniel Mason,Yuki,Tinky
 ```
 
-Without using numeric keys:
+Without using arrays:
 ```json
 [
   {
@@ -75,7 +75,7 @@ Without using numeric keys:
 ]
 ```
 
-With numeric keys (`-d . -n`):
+With arrays (`-d . -n`):
 ```json
 [
   {
