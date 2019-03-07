@@ -24,7 +24,7 @@ fn main() {
     let out_dir = cli_matches.value_of(cli::OUT_DIR);
     let out_name = cli_matches.value_of(cli::OUT_NAME);
     let ds = cli_matches.value_of(cli::DIMENSIONAL_SEPARATOR);
-    let na = cli_matches.is_present(cli::NUMERIC_ARRAYS);
+    let na = cli_matches.is_present(cli::ARRAYS);
     let res = cli_matches.is_present(cli::REMOVE_EMPTY_STRINGS);
     let reo = cli_matches.is_present(cli::REMOVE_EMPTY_OBJECTS);
     let file = File::open(csv_file).expect("Could not read csv file");

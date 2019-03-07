@@ -2,7 +2,7 @@ use clap::{app_from_crate, crate_authors, crate_description, crate_name, crate_v
 use clap::{App, Arg, ArgMatches};
 
 pub const DIMENSIONAL_SEPARATOR: &str = "dimensional-separator";
-pub const NUMERIC_ARRAYS: &str = "numeric-arrays";
+pub const ARRAYS: &str = "arrays";
 pub const REMOVE_EMPTY_STRINGS: &str = "remove-empty-strings";
 pub const REMOVE_EMPTY_OBJECTS: &str = "remove-empty-objects";
 pub const IN: &str = "in";
@@ -43,16 +43,16 @@ fn configure_app<'a, 'b>() -> App<'a, 'b> {
         )
         .arg(
             Arg::with_name(DIMENSIONAL_SEPARATOR)
-                .short("d")
+                .short("D")
                 .long(DIMENSIONAL_SEPARATOR)
                 .value_name("SEPARATOR")
                 .help("A separator to break header names allowing you to create deeper objects")
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name(NUMERIC_ARRAYS)
-                .short("n")
-                .long(NUMERIC_ARRAYS)
+            Arg::with_name(ARRAYS)
+                .short("a")
+                .long(ARRAYS)
                 .help("Indicates the csv contains arrays represented by numeric keys. Use with -d")
                 .takes_value(false),
         )
