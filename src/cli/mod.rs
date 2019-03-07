@@ -43,7 +43,7 @@ fn configure_app<'a, 'b>() -> App<'a, 'b> {
         )
         .arg(
             Arg::with_name(DIMENSIONAL_SEPARATOR)
-                .short("d")
+                .short("D")
                 .long(DIMENSIONAL_SEPARATOR)
                 .value_name("SEPARATOR")
                 .help("A separator to break header names allowing you to create deeper objects")
