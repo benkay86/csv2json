@@ -64,7 +64,7 @@ fn configure_app<'a, 'b>() -> App<'a, 'b> {
             Arg::with_name(ARRAYS)
                 .short("a")
                 .long(ARRAYS)
-                .help("Indicates the csv contains arrays represented by numeric keys. Use with -d")
+                .help("Indicates the csv contains arrays represented by numeric keys. Use with -D")
                 .takes_value(false),
         )
         .arg(
