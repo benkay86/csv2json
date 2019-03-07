@@ -173,7 +173,7 @@ fn number_to_bool(number: &Number) -> bool {
         number.as_u64().unwrap() == 0
     } else if number.is_i64() {
         number.as_i64().unwrap() == 0
-    } else if number.is_i64() {
+    } else if number.as_f64() {
         number.as_f64().unwrap() == 0.0
     } else {
         panic!("serde_json have changed their api, it is no longer possible to determine the type of numbers")
