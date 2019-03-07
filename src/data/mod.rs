@@ -80,8 +80,8 @@ fn remove_empty_objects_from_object(object: Map<String, Value>) -> Value {
 fn remove_empty_objects_from_array(arr: Vec<Value>) -> Value {
     let new_arr: Vec<Value> = arr
         .into_iter()
-        .filter(|value| !(value.is_object() && value.as_object().unwrap().is_empty()))
         .map(remove_empty_objects)
+        .filter(|value| !(value.is_object() && value.as_object().unwrap().is_empty()))
         .collect();
     json!(new_arr)
 }
@@ -106,8 +106,8 @@ fn remove_empty_strings_from_object(object: Map<String, Value>) -> Value {
 fn remove_empty_strings_from_array(arr: Vec<Value>) -> Value {
     let new_arr: Vec<Value> = arr
         .into_iter()
-        .filter(|value| !(value.is_string() && value.as_str().unwrap().is_empty()))
         .map(remove_empty_strings)
+        .filter(|value| !(value.is_string() && value.as_str().unwrap().is_empty()))
         .collect();
     json!(new_arr)
 }
