@@ -28,8 +28,8 @@ fn main() {
     let res = cli_matches.is_present(cli::REMOVE_EMPTY_STRINGS);
     let reo = cli_matches.is_present(cli::REMOVE_EMPTY_OBJECTS);
     let file = File::open(csv_file).expect("Could not read csv file");
-    let boolean_columns = cli_matches.values_of_lossy(cli::BOOLEAN);
-    let boolean_columns = boolean_columns.unwrap_or_else(|| vec![]);
+    let boolean_columns = cli_matches.values_of_lossy(cli::BOOLEAN).unwrap_or_else(|| vec![]);
+    let numeric_columns = cli_matches.values_of_lossy(cli::NUMERIC).unwrap_or_else(|| vec![]);
     let mut csv_reader = csv::Reader::from_reader(file);
 
     let raw_rows: Vec<HashMap<String, Value>> = csv_reader
@@ -37,17 +37,9 @@ fn main() {
         .filter(|result| result.is_ok())
         .map(|result| -> HashMap<String, String> { result.unwrap() })
         .filter(|row| !row.is_empty())
-        .map(|map| -> HashMap<String, Value> {
-            map.into_iter()
-                .map(|(key, value)| {
-                    if boolean_columns.contains(&key) {
-                        (key, Value::Bool(data::string_to_bool(&value)))
-                    } else {
-                        (key, Value::String(value))
-                    }
-                })
-                .collect()
-        })
+        .map(data::row_to_values)
+        .map(|map| data::columns_to_numbers(&numeric_columns, map))
+        .map(|map| data::columns_to_booleans(&boolean_columns, map))
         .collect();
 
     let mut items: Value = raw_rows
