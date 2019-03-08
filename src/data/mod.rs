@@ -200,6 +200,12 @@ fn boolean_to_number(boolean: bool) -> Number {
 }
 
 fn string_to_number(string: &str) -> Result<Number, &str> {
+    if string.is_empty() {
+        let zero = json!(0);
+        if let Value::Number(zero) = zero {
+            return Ok(zero);
+        }
+    }
     if let Ok(unsigned) = string.parse::<u64>() {
         let unsigned = json!(unsigned);
         if let Value::Number(unsigned) = unsigned {
@@ -434,6 +440,38 @@ mod tests {
                 _ => panic!("Number not created correctly"),
             };
             assert_eq!(super::boolean_to_number(b), zero)
+        }
+    }
+
+    mod string_to_number {
+        #[test]
+        fn it_converts_positive_numbers() {
+            let n = "1";
+            assert_eq!(json!(super::string_to_number(n).unwrap()), json!(1))
+        }
+
+        #[test]
+        fn it_converts_negative_numbers() {
+            let n = "-1";
+            assert_eq!(json!(super::string_to_number(n).unwrap()), json!(-1))
+        }
+
+        #[test]
+        fn it_converts_floats() {
+            let n = "1.0e3";
+            assert_eq!(json!(super::string_to_number(n).unwrap()), json!(1000.0))
+        }
+
+        #[test]
+        fn it_converts_zero() {
+            let n = "0";
+            assert_eq!(json!(super::string_to_number(n).unwrap()), json!(0))
+        }
+
+        #[test]
+        fn it_converts_an_empty_string() {
+            let n = "";
+            assert_eq!(json!(super::string_to_number(n).unwrap()), json!(0))
         }
     }
 }
