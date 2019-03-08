@@ -1,7 +1,16 @@
 Change log
 ==========
 
-[0.3.0]
+[0.3.1] - 2019-03-08
+--------------------
+
+### Fixed
+
+- File names were quoted due to the stringification of serde_json Values
+- Empty string now considered to be 0 when converted to a number
+
+[0.3.0] - 2019-03-08
+--------------------
 
 ### Changed
 
