@@ -234,9 +234,9 @@ pub fn value_to_number(value: &Value) -> Number {
     }
 }
 
-pub fn row_to_values(row: HashMap<String, String>) -> HashMap<String, Value> {
-    row.into_iter()
-        .map(|(key, value)| (key, Value::String(value)))
+pub fn row_to_values(row: &HashMap<String, String>) -> HashMap<String, Value> {
+    row.iter()
+        .map(|(key, value)| (key.clone(), Value::String(value.clone())))
         .collect()
 }
 
