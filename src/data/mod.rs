@@ -1,5 +1,5 @@
-use serde_json::{map::Entry, Map, Value, Number};
-use std::collections::{HashMap, hash_map::Entry as HashMapEntry};
+use serde_json::{map::Entry, Map, Number, Value};
+use std::collections::{hash_map::Entry as HashMapEntry, HashMap};
 
 pub fn group_numeric_arrays(value: Value) -> Value {
     match value {
@@ -170,11 +170,11 @@ fn string_to_bool(string: &str) -> bool {
 
 fn number_to_bool(number: &Number) -> bool {
     if number.is_u64() {
-        number.as_u64().unwrap() == 0
+        number.as_u64().unwrap() != 0
     } else if number.is_i64() {
-        number.as_i64().unwrap() == 0
-    } else if number.is_i64() {
-        number.as_f64().unwrap() == 0.0
+        number.as_i64().unwrap() != 0
+    } else if number.is_f64() {
+        number.as_f64().unwrap() != 0.0
     } else {
         panic!("serde_json have changed their api, it is no longer possible to determine the type of numbers")
     }
@@ -226,17 +226,24 @@ pub fn value_to_number(value: &Value) -> Number {
         &Value::Null => 0.into(),
         Value::Bool(boolean) => boolean_to_number(*boolean),
         Value::Number(number) => number.clone(),
-        Value::String(string) => string_to_number(&string).expect("Could not calculate numeric value of column"),
+        Value::String(string) => {
+            string_to_number(&string).expect("Could not calculate numeric value of column")
+        }
         Value::Array(array) => boolean_to_number(!array.is_empty()),
         Value::Object(object) => boolean_to_number(!object.is_empty()),
     }
 }
 
 pub fn row_to_values(row: HashMap<String, String>) -> HashMap<String, Value> {
-    row.into_iter().map(|(key, value)| (key, Value::String(value))).collect()
+    row.into_iter()
+        .map(|(key, value)| (key, Value::String(value)))
+        .collect()
 }
 
-pub fn columns_to_booleans(columns: &Vec<String>, mut row: HashMap<String, Value>) -> HashMap<String, Value> {
+pub fn columns_to_booleans(
+    columns: &[String],
+    mut row: HashMap<String, Value>,
+) -> HashMap<String, Value> {
     columns.iter().for_each(|column| {
         if let HashMapEntry::Occupied(entry) = row.entry(column.to_string()) {
             *entry.into_mut() = Value::Bool(value_to_bool(entry.get()));
@@ -245,7 +252,10 @@ pub fn columns_to_booleans(columns: &Vec<String>, mut row: HashMap<String, Value
     row
 }
 
-pub fn columns_to_numbers(columns: &Vec<String>, mut row: HashMap<String, Value>) -> HashMap<String, Value> {
+pub fn columns_to_numbers(
+    columns: &[String],
+    mut row: HashMap<String, Value>,
+) -> HashMap<String, Value> {
     columns.iter().for_each(|column| {
         if let HashMapEntry::Occupied(entry) = row.entry(column.to_string()) {
             *entry.into_mut() = Value::Number(value_to_number(entry.get()));
@@ -328,6 +338,102 @@ mod tests {
             let v1 = json!({"k1":"v1"});
             let v2 = json!({"k1":"v2"});
             assert_eq!(super::merge_values(v1, v2), json!({"k1":["v1","v2"]}));
+        }
+    }
+
+    mod number_to_bool {
+        #[test]
+        fn it_converts_u64s() {
+            let zero: u64 = 0;
+            let one: u64 = 1;
+
+            let zero = match json!(zero) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+            let one = match json!(one) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+
+            assert!(!super::number_to_bool(&zero));
+            assert!(super::number_to_bool(&one));
+        }
+
+        #[test]
+        fn it_converts_i64s() {
+            let zero: i64 = 0;
+            let one: i64 = 1;
+            let minus_one: i64 = 1;
+
+            let zero = match json!(zero) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+            let one = match json!(one) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+            let minus_one = match json!(minus_one) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+
+            assert!(!super::number_to_bool(&zero));
+            assert!(super::number_to_bool(&one));
+            assert!(super::number_to_bool(&minus_one));
+        }
+
+        #[test]
+        fn it_converts_f64s() {
+            let zero: f64 = 0.0;
+            let one: f64 = 1.0;
+            let huge: f64 = 1.0e+40;
+            let tiny: f64 = 1.0e-40;
+
+            let zero = match json!(zero) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+            let one = match json!(one) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+            let huge = match json!(huge) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+            let tiny = match json!(tiny) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+
+            assert!(!super::number_to_bool(&zero));
+            assert!(super::number_to_bool(&one));
+            assert!(super::number_to_bool(&huge));
+            assert!(super::number_to_bool(&tiny));
+        }
+    }
+
+    mod boolean_to_number {
+        #[test]
+        fn it_converts_true_to_one() {
+            let b = true;
+            let one = match json!(1) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+            assert_eq!(super::boolean_to_number(b), one)
+        }
+
+        #[test]
+        fn it_converts_false_to_zero() {
+            let b = false;
+            let zero = match json!(0) {
+                super::Value::Number(num) => num,
+                _ => panic!("Number not created correctly"),
+            };
+            assert_eq!(super::boolean_to_number(b), zero)
         }
     }
 }
