@@ -13,6 +13,4 @@ RUN cargo install --path . --root /app --target x86_64-unknown-linux-musl
 
 FROM alpine
 
-WORKDIR /app
-
 COPY --from=build /app/bin/csv2json /usr/bin/csv2json
