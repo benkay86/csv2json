@@ -1,4 +1,4 @@
-FROM rust as build
+FROM registry.gitlab.com/apolitical/tools/rust-builder as build
 
 RUN rustup target add x86_64-unknown-linux-musl
 

@@ -2,7 +2,7 @@
 # Reuse #
 #########
 variables:
-  RUNNER_IMAGE: $CI_REGISTRY_IMAGE/builder:$CI_PIPELINE_ID
+  RUNNER_IMAGE: registry.gitlab.com/apolitical/tools/rust-builder
   ARTIFACT_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
 
 .buildable: &buildable
@@ -15,26 +15,8 @@ variables:
 # Stages #
 ##########
 stages:
-  - Prepare # ToDo: Make our own rust builder
   - Quality
   - Build
-
-###########
-# Prepare #
-###########
-Build Runner:
-  stage: Prepare
-  image: docker:stable
-  services:
-    - docker:dind
-  variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_DRIVER: overlay2
-  before_script:
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-  script:
-    - docker build . -t $RUNNER_IMAGE -f .gitlab-ci/runner/Dockerfile
-    - docker push $RUNNER_IMAGE
 
 ###########
 # Quality #
