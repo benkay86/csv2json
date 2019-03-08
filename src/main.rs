@@ -40,17 +40,21 @@ fn main() {
         .delimiter(delimiter_byte)
         .from_reader(file);
 
-    let raw_rows: Vec<HashMap<String, Value>> = csv_reader
+    let raw_rows: Vec<HashMap<String, String>> = csv_reader
         .deserialize()
         .filter(|result| result.is_ok())
         .map(|result| -> HashMap<String, String> { result.unwrap() })
         .filter(|row| !row.is_empty())
+        .collect();
+
+    let typed_rows: Vec<HashMap<String, Value>> = raw_rows
+        .iter()
         .map(data::row_to_values)
         .map(|map| data::columns_to_numbers(&numeric_columns, map))
         .map(|map| data::columns_to_booleans(&boolean_columns, map))
         .collect();
 
-    let mut items: Value = raw_rows
+    let mut items: Value = typed_rows
         .iter()
         .map(|row| -> Value {
             let mut items = Map::new();
@@ -80,12 +84,10 @@ fn main() {
             // If a template name was used.
             let raw_rows_iter = raw_rows.into_iter();
             let items_iter = items.as_array().unwrap().iter().cloned();
-            let paired_data: Vec<(HashMap<String, Value>, Value)> =
-                raw_rows_iter.zip(items_iter).collect();
 
-            paired_data.iter().for_each(|(raw, data)| {
+            raw_rows_iter.zip(items_iter).for_each(|(raw, data)| {
                 let output = serde_json::to_string_pretty(&data).unwrap();
-                let file_name = strfmt(&out_name, raw).unwrap();
+                let file_name = strfmt(&out_name, &raw).unwrap();
                 sys::write_json_to_file(&out_dir, &file_name, &output)
                     .expect("Failed to write to file");
             })
