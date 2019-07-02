@@ -11,7 +11,7 @@ categories = ["command-line-interface", "data-structures"]
 
 [dependencies]
 clap = "^2.33"
-csv = "^1.0"
+csv = "^1.1"
 serde = "^1.0"
 serde_json = "^1.0"
 strfmt = "0.1.6"
