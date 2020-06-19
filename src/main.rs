@@ -13,14 +13,13 @@ use serde_json::Map;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fs::File;
+use std::io::Read;
 use strfmt::strfmt;
 
 fn main() {
     let cli_matches = cli::get_matches();
 
-    let csv_file = cli_matches
-        .value_of(cli::IN)
-        .expect("You must specify an input csv with --in");
+    let csv_file = cli_matches.value_of(cli::IN);
     let out_dir = cli_matches.value_of(cli::OUT_DIR);
     let out_name = cli_matches.value_of(cli::OUT_NAME);
     let delimiter = cli_matches.value_of(cli::DELIMITER).unwrap(); // Has a default
@@ -29,16 +28,27 @@ fn main() {
     let na = cli_matches.is_present(cli::ARRAYS);
     let res = cli_matches.is_present(cli::REMOVE_EMPTY_STRINGS);
     let reo = cli_matches.is_present(cli::REMOVE_EMPTY_OBJECTS);
-    let file = File::open(csv_file).expect("Could not read csv file");
     let boolean_columns = cli_matches
         .values_of_lossy(cli::BOOLEAN)
         .unwrap_or_else(|| vec![]);
     let numeric_columns = cli_matches
         .values_of_lossy(cli::NUMERIC)
         .unwrap_or_else(|| vec![]);
+    let reader: Box<dyn Read> = match csv_file {
+        Some(csv_file) => {
+            let file = File::open(csv_file).expect("Could not read csv file");
+            Box::new(file)
+        },
+        None => {
+            eprintln!("Reading from standard input, press Ctrl+D or Ctrl+C to exit.");
+            eprintln!("Use --in if you meant to specify a csv file.");
+            eprintln!("Use --help for usage information.");
+            Box::new(std::io::stdin())
+        }
+    };
     let mut csv_reader = csv::ReaderBuilder::new()
         .delimiter(delimiter_byte)
-        .from_reader(file);
+        .from_reader(reader);
 
     let raw_rows: Vec<HashMap<String, String>> = csv_reader
         .deserialize()
@@ -93,6 +103,10 @@ fn main() {
             })
         } else {
             // If no template name was provided
+            let csv_file = match csv_file {
+                Some(csv_file) => csv_file, // use the same name as the input file
+                None => "output"            // otherwise default to output.json
+            }; 
             let output = serde_json::to_string_pretty(&items).unwrap();
             let file_name = sys::get_file_name(&csv_file);
             sys::write_json_to_file(&out_dir, &file_name, &output)

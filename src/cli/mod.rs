@@ -23,9 +23,9 @@ fn configure_app<'a, 'b>() -> App<'a, 'b> {
                 .short("i")
                 .long(IN)
                 .value_name("FILE")
-                .help("The csv file to read")
+                .help("The csv file to read, otherwise reads stdin")
                 .takes_value(true)
-                .required(true),
+                .required(false),
         )
         .arg(
             Arg::with_name(OUT_DIR)
