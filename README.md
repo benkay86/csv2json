@@ -52,7 +52,7 @@ Using `-d :`
 
 ### Dimensional Seperator
 
-If your CSV contains multidimensional data, you can add use the dimensional separator argument `-d`
+If your CSV contains multidimensional data, you can add use the dimensional separator argument, capital `-D`
 
 Eg:
 ```csv
@@ -71,7 +71,7 @@ Without using the separator:
 ]
 ```
 
-Setting the separator `-d .`:
+Setting the separator `-D .`:
 ```json
 [
   {
@@ -86,7 +86,7 @@ Setting the separator `-d .`:
 
 ### Arrays
 
-You can use `--arrays` (or `-a`) with `-d` to break items into arrays
+You can use `--arrays` (or `-a`) with `-D` to break items into arrays
 
 ```csv
 name,pets.1,pets.2
@@ -104,7 +104,7 @@ Without using arrays:
 ]
 ```
 
-With arrays (`-d . -a`):
+With arrays (`-D . -a`):
 ```json
 [
   {
