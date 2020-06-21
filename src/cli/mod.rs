@@ -11,6 +11,7 @@ pub const OUT_DIR: &str = "out-dir";
 pub const OUT_NAME: &str = "out-name";
 pub const BOOLEAN: &str = "boolean";
 pub const NUMERIC: &str = "numeric";
+pub const FOLD: &str = "fold";
 
 pub fn get_matches<'a>() -> ArgMatches<'a> {
     configure_app().get_matches()
@@ -97,6 +98,14 @@ fn configure_app<'a, 'b>() -> App<'a, 'b> {
                 .long(REMOVE_EMPTY_OBJECTS)
                 .value_name(REMOVE_EMPTY_OBJECTS)
                 .help("Removes keys that contain empty objects")
+                .takes_value(false),
+        )
+        .arg(
+            Arg::with_name(FOLD)
+                .long(FOLD)
+                .short("F")
+                .value_name(FOLD)
+                .help("Fold array of json objects into one object with an array for each column")
                 .takes_value(false),
         )
 }

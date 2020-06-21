@@ -34,6 +34,7 @@ fn main() {
     let numeric_columns = cli_matches
         .values_of_lossy(cli::NUMERIC)
         .unwrap_or_else(|| vec![]);
+    let fold = cli_matches.is_present(cli::FOLD);
     let reader: Box<dyn Read> = match csv_file {
         Some(csv_file) => {
             let file = File::open(csv_file).expect("Could not read csv file");
@@ -87,6 +88,9 @@ fn main() {
     }
     if reo {
         items = data::remove_empty_objects(items);
+    }
+    if fold {
+        items = data::fold(items, csv_reader.headers().unwrap(), ds);
     }
 
     if let Some(out_dir) = out_dir {

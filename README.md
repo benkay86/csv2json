@@ -209,6 +209,26 @@ $ csv2json --in test.csv -d . -a --remove-empty-strings --remove-empty-objects
 ]
 ```
 
+### Fold Output
+
+By defaut, csv2json generates an array of json objects with one object for each row in the input file.  For example:
+
+```
+foo,bar
+1,a
+2,b
+3,c
+```
+```
+[{"foo": "1", "bar": "a"}, {"foo": "2", "bar": "b"}, {"foo": "3", "bar": "c"}]
+```
+
+By specifying the `--fold` or `-F` option, csv2json will fold the array of objects into an object of arrays:
+
+```
+{"foo": ["1", "2", "3"], "bar": ["a", "b", "c"]}
+```
+
 ### Output to directory
 
 Using the `--out-dir <dir>` to write the `.json` file to the output dir. It will use the name of the

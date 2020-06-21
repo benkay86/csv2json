@@ -270,6 +270,63 @@ pub fn columns_to_numbers(
     row
 }
 
+// Fold array of json objects (one object for each row) into one root object containing an
+// an array for each column, where the length of each array is equal to the # of rows.
+pub fn fold(mut items: Value, headers: &csv::StringRecord, ds: Option<&str>) -> Value {
+    // Clean up headers to account for dimensional separators.
+    let headers = distill_headers(headers, ds);
+    
+    // Initialize root object with an empty array for each column. 
+    let mut root_object = Value::Object(Map::new());
+    headers.into_iter().for_each( |header| {
+        root_object.as_object_mut().unwrap().insert(header.into(), Value::Array(Vec::new()));
+    });
+    
+    // Move each row into the arrays under the root object.
+    items.as_array_mut().unwrap().into_iter().for_each( |row| {
+        // Put empty values back into row.
+        root_object
+            .as_object_mut()
+            .unwrap()
+            .iter_mut()
+            .for_each( |(k,a)| {
+                match row.as_object_mut().unwrap().remove(k) {
+                    Some(v) => {
+                        a.as_array_mut().unwrap().push(v);
+                    },
+                    None => {
+                        a.as_array_mut().unwrap().push(Value::Null);
+                    }
+                }
+            });
+    });
+    
+    // All done.
+    return root_object;
+}
+
+// If we were called with a separator, remove separated items from header.
+// E.g., `-D .` then header `foo.bar` becomes just `foo`.
+fn distill_headers(headers: &csv::StringRecord, ds: Option<&str>) -> Vec<String> {
+    match ds {
+        Some(ds) => {
+            // For each header, trim off the bits after the dimensional separator.
+            let mut headers: Vec<String> = headers.into_iter().map(
+                |s| s.split(ds).next().unwrap().into()
+            ).collect();
+            
+            // Then remove duplicates.
+            headers.sort();
+            headers.dedup();
+            headers
+        },
+        None => {
+            // No dimensional separator, just return headers without changing anything.
+            headers.into_iter().map(|s| s.into()).collect()
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -472,6 +529,95 @@ mod tests {
         fn it_converts_an_empty_string() {
             let n = "";
             assert_eq!(json!(super::string_to_number(n).unwrap()), json!(0))
+        }
+    }
+    
+    mod fold {
+        #[test]
+        fn it_distills_plain_headers() {
+            let mut headers = vec!["foo", "bar"];
+            headers.sort();
+            let csv_headers = csv::StringRecord::from(headers.clone());
+            let csv_headers = super::distill_headers(&csv_headers, None);
+            let matching = csv_headers.iter().zip(headers).filter(|&(a,b)| a == b).count(); 
+            assert_eq!(matching, 2);
+        }
+        
+        #[test]
+        fn it_distills_dimensional_headers() {
+            let headers = vec!["foo.1", "foo.2", "bar"];
+            let csv_headers = csv::StringRecord::from(headers);
+            let csv_headers = super::distill_headers(&csv_headers, Some("."));
+            let mut headers = vec!["foo", "bar"];
+            headers.sort();
+            let matching = csv_headers.iter().zip(headers).filter(|&(a,b)| a == b).count(); 
+            assert_eq!(matching, 2);
+        }
+        
+        #[test]
+        fn it_folds_plain() {
+            let mut headers = vec!["bar", "foo"];
+            headers.sort();
+            let items = super::fold(
+                json!([
+                    {
+                        "bar": "a",
+                        "foo": 1
+                    },
+                    {
+                        "bar": "b",
+                        "foo": 2
+                    },
+                    {
+                        "bar": "c",
+                        "foo": 3
+                    },
+                ]),
+                &csv::StringRecord::from(headers),
+                None
+            );
+            assert_eq!(
+                items,
+                json!({
+                    "bar": ["a", "b", "c"],
+                    "foo": [1, 2, 3]
+                })
+            );
+        }
+        
+        #[test]
+        fn it_folds_dimensional() {
+            let mut headers = vec!["bar", "foo.1", "foo.2"];
+            headers.sort();
+            let items = super::fold(
+                json!([
+                    {
+                        "bar": "a",
+                        "foo": [1, 11]
+                    },
+                    {
+                        "bar": "b",
+                        "foo": [2, 22]
+                    },
+                    {
+                        "bar": "c",
+                        "foo": [3, 33]
+                    },
+                ]),
+                &csv::StringRecord::from(headers),
+                Some(".")
+            );
+            assert_eq!(
+                items,
+                json!({
+                    "bar": ["a", "b", "c"],
+                    "foo": [
+                        [1, 11],
+                        [2, 22],
+                        [3, 33]
+                    ]
+                })
+            );
         }
     }
 }
