@@ -229,6 +229,12 @@ By specifying the `--fold` or `-F` option, csv2json will fold the array of objec
 {"foo": ["1", "2", "3"], "bar": ["a", "b", "c"]}
 ```
 
+### JSONL output
+
+Using the `--jsonl` flag will write out newline-delimited JSON.
+So-called [JSONL or JSON Lines](https://jsonlines.org/). This flag is
+ignored when outputting to files based on names.
+
 ### Output to directory
 
 Using the `--out-dir <dir>` to write the `.json` file to the output dir. It will use the name of the
