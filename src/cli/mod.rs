@@ -9,6 +9,7 @@ pub const REMOVE_EMPTY_OBJECTS: &str = "remove-empty-objects";
 pub const IN: &str = "in";
 pub const OUT_DIR: &str = "out-dir";
 pub const OUT_NAME: &str = "out-name";
+pub const JSONL: &str = "jsonl";
 pub const BOOLEAN: &str = "boolean";
 pub const NUMERIC: &str = "numeric";
 pub const FOLD: &str = "fold";
@@ -43,6 +44,14 @@ fn configure_app<'a, 'b>() -> App<'a, 'b> {
                 .value_name("TEMPLATE")
                 .help("The template to use for naming multiple output files")
                 .takes_value(true),
+        )
+        .arg(
+            Arg::with_name(JSONL)
+                .short("l")
+                .long(JSONL)
+                .value_name("JSONL")
+                .help("Output JSONL: one line per record")
+                .takes_value(false),
         )
         .arg(
             Arg::with_name(DELIMITER)

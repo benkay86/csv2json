@@ -35,6 +35,7 @@ fn main() {
         .values_of_lossy(cli::NUMERIC)
         .unwrap_or_else(|| vec![]);
     let fold = cli_matches.is_present(cli::FOLD);
+    let jsonl = cli_matches.is_present(cli::JSONL);
     let reader: Box<dyn Read> = match csv_file {
         Some(csv_file) => {
             let file = File::open(csv_file).expect("Could not read csv file");
@@ -96,6 +97,7 @@ fn main() {
     if let Some(out_dir) = out_dir {
         if let Some(out_name) = out_name {
             // If a template name was used.
+            // With a template jsonl makes no sense.
             let raw_rows_iter = raw_rows.into_iter();
             let items_iter = items.as_array().unwrap().iter().cloned();
 
@@ -110,15 +112,32 @@ fn main() {
             let csv_file = match csv_file {
                 Some(csv_file) => csv_file, // use the same name as the input file
                 None => "output"            // otherwise default to output.json
-            }; 
-            let output = serde_json::to_string_pretty(&items).unwrap();
+            };
+
+            let output = if jsonl {
+                items.as_array().unwrap().iter()
+                              .map(|item| serde_json::to_string(&item).unwrap())
+                              .collect::<Vec<String>>()
+                              .join("\n")
+            } else {
+                serde_json::to_string_pretty(&items).unwrap()
+            };
+
             let file_name = sys::get_file_name(&csv_file);
             sys::write_json_to_file(&out_dir, &file_name, &output)
                 .expect("Failed to write to file");
         }
     } else {
         // If no output was specified
-        let output = serde_json::to_string_pretty(&items).unwrap();
+        let output = if jsonl {
+            items.as_array().unwrap().iter()
+                          .map(|item| serde_json::to_string(&item).unwrap())
+                          .collect::<Vec<String>>()
+                          .join("\n")
+        } else {
+            serde_json::to_string_pretty(&items).unwrap()
+        };
+
         println!("{}", output);
     }
 }
